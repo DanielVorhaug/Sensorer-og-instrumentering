@@ -1,7 +1,7 @@
 /*
 adc_sampler.c
 Public Domain
-January 2018, Kristoffer KjÃ¦rnes & Asgeir BjÃ¸rgan
+January 2018, Kristoffer Kjærnes & Asgeir Bjørgan
 Based on example code from the pigpio library by Joan @ raspi forum and github
 https://github.com/joan2937 | http://abyz.me.uk/rpi/pigpio/
 
@@ -39,11 +39,11 @@ channel ADC without need for any input to initiate sampling.
 #define OUTPUT_DATA argv[2] // path and filename to dump buffered ADC data
 
 /* RPi PIN ASSIGNMENTS */
-#define MISO1 25    // ADC 1 MISO (BCM 4 aka GPIO 4).
-#define MISO2 12    //     2
-#define MISO3 16    //     3
-#define MISO4 20    //     4
-#define MISO5 21    //     5
+#define MISO1 07    // ADC 1 MISO (BCM 4 aka GPIO 4).
+#define MISO2 29    //     2			5
+#define MISO3 31    //     3			6
+#define MISO4 32    //     4			12
+#define MISO5 33    //     5			13
 
 #define MOSI 10     // GPIO for SPI MOSI (BCM 10 aka GPIO 10 aka SPI_MOSI). MOSI not in use here due to single ch. ADCs, but must be defined anyway.
 #define SPI_SS 24   // GPIO for slave select (BCM 8 aka GPIO 8 aka SPI_CE0).
