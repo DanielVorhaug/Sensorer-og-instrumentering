@@ -36,18 +36,18 @@ channel ADC without need for any input to initiate sampling.
 /////// USER SHOULD MAKE SURE THESE DEFINES CORRESPOND TO THEIR SETUP ///////
 #define ADCS 5      // Number of connected MCP3201.
 
-#define OUTPUT_DATA argv[2] // path and filename to dump buffered ADC data
+#define OUTPUT_DATA "adcData.bin" // path and filename to dump buffered ADC data
 
 /* RPi PIN ASSIGNMENTS */
-#define MISO1 07    // ADC 1 MISO (BCM 4 aka GPIO 4).
-#define MISO2 29    //     2			5
-#define MISO3 31    //     3			6
-#define MISO4 32    //     4			12
-#define MISO5 33    //     5			13
+#define MISO1 13    // ADC 1 MISO (BCM 4 aka GPIO 4).
+#define MISO2 12    //     2
+#define MISO3 6    //     3
+#define MISO4 5    //     4
+#define MISO5 16    //     5
 
-#define MOSI 10     // GPIO for SPI MOSI (BCM 10 aka GPIO 10 aka SPI_MOSI). MOSI not in use here due to single ch. ADCs, but must be defined anyway.
-#define SPI_SS 24   // GPIO for slave select (BCM 8 aka GPIO 8 aka SPI_CE0).
-#define CLK 23      // GPIO for SPI clock (BCM 11 aka GPIO 11 aka SPI_CLK).
+#define MOSI 10//12     // GPIO for SPI MOSI (BCM 10 aka GPIO 10 aka SPI_MOSI). MOSI not in use here due to single ch. ADCs, but must be defined anyway.
+#define SPI_SS 8//24   // GPIO for slave select (BCM 8 aka GPIO 8 aka SPI_CE0).
+#define CLK 11//23      // GPIO for SPI clock (BCM 11 aka GPIO 11 aka SPI_CLK).
 /* END RPi PIN ASSIGNMENTS */
 
 #define BITS 12            // Bits per sample.
