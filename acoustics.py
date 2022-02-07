@@ -8,19 +8,19 @@ def find_lags(data, wanted_axis1, wanted_axis2, wanted_axis3):
     max_lag = 10  # The maximum lag possible with current configuration
 
     # Start with making the three full crosscorrelations
-    n12 = np.correlate(data[wanted_axis1], data[wanted_axis2], 'full')
-    n23 = np.correlate(data[wanted_axis2], data[wanted_axis3], 'full')
-    n13 = np.correlate(data[wanted_axis1], data[wanted_axis3], 'full')
+    n12 = np.correlate(data[:,wanted_axis1], data[:,wanted_axis2], 'same')
+    n23 = np.correlate(data[:,wanted_axis2], data[:,wanted_axis3], 'same')
+    n13 = np.correlate(data[:,wanted_axis1], data[:,wanted_axis3], 'same')
 
     # Then remove all values that would be for longer delays than possible
-    n12 = n12[len(n12) // 2 - max_lag, len(n12) // 2 + max_lag]
-    n23 = n23[len(n23) // 2 - max_lag, len(n23) // 2 + max_lag]
-    n13 = n13[len(n13) // 2 - max_lag, len(n13) // 2 + max_lag]
+    # n12 = n12[len(n12) // 2 - max_lag: len(n12) // 2 + max_lag]
+    # n23 = n23[len(n23) // 2 - max_lag: len(n23) // 2 + max_lag]
+    # n13 = n13[len(n13) // 2 - max_lag: len(n13) // 2 + max_lag]
 
     # Finds index of maximum value and translates it into lag in samples
-    l12 = np.argmax(n12) - max_lag
-    l23 = np.argmax(n23) - max_lag
-    l13 = np.argmax(n13) - max_lag
+    l12 = -(np.argmax(n12) - len(n12)//2)
+    l23 = -(np.argmax(n23) - len(n23)//2)
+    l13 = -(np.argmax(n13) - len(n13)//2)
     return(l12, l23, l13)
 
 def raspi_import(path, channels=5):
@@ -39,7 +39,7 @@ def raspi_import(path, channels=5):
 
 #Channel  2 is "upper left", channel 3 is "lower mid", channel 4 is "upper right"
 # Import data from bin file
-sample_period, data = raspi_import('adcData.bin')
+sample_period, data = raspi_import('Data\\09adcData Testing med 600Hz sinus.bin')
 
 data = signal.detrend(data, axis=0)  # removes DC component for each channel
 sample_period *= 1e-6  # change unit to micro seconds
@@ -58,6 +58,8 @@ spectrum = np.fft.fft(data, axis=0)  # takes FFT of all channels
 #Fixes frequency axis from -16kHz to 16kHz
 freq = np.fft.fftshift(freq)
 spectrum = np.fft.fftshift(spectrum)
+
+print(l12, l23, l13)
 
 
 # Plot the results in two subplots
