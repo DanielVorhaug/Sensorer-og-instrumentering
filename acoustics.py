@@ -8,9 +8,21 @@ def find_lags(data, wanted_axis1, wanted_axis2, wanted_axis3):
     max_lag = 10  # The maximum lag possible with current configuration
 
     # Start with making the three full crosscorrelations
-    n12 = np.correlate(data[:,wanted_axis1], data[:,wanted_axis2], 'same')
-    n23 = np.correlate(data[:,wanted_axis2], data[:,wanted_axis3], 'same')
-    n13 = np.correlate(data[:,wanted_axis1], data[:,wanted_axis3], 'same')
+    # n12 = np.correlate(data[:,wanted_axis1], data[:,wanted_axis2], 'same')
+    # n23 = np.correlate(data[:,wanted_axis2], data[:,wanted_axis3], 'same')
+    # n13 = np.correlate(data[:,wanted_axis1], data[:,wanted_axis3], 'same')
+
+    # autocorrelations
+    n12 = np.correlate(data[:,wanted_axis1], data[:,wanted_axis1], 'same')
+    n23 = np.correlate(data[:,wanted_axis2], data[:,wanted_axis2], 'same')
+    n13 = np.correlate(data[:,wanted_axis3], data[:,wanted_axis3], 'same')
+
+    plt.subplot(3, 1, 1)
+    plt.plot(np.linspace(-len(n12)//2-1,  len(n12)//2, len(n12)), n12)
+    plt.subplot(3, 1, 2)
+    plt.plot(np.linspace(-len(n12)//2-1, len(n12)//2, len(n12)), n23)
+    plt.subplot(3, 1, 3)
+    plt.plot(np.linspace(-len(n12)//2-1, len(n12)//2, len(n12)), n13)
 
     # Then remove all values that would be for longer delays than possible
     # n12 = n12[len(n12) // 2 - max_lag: len(n12) // 2 + max_lag]
