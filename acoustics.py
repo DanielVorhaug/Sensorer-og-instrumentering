@@ -33,6 +33,9 @@ def make_correlations(data, wanted_axis1, wanted_axis2, wanted_axis3): #This fun
 
 def get_angle(l12, l23, l13):
     angl = np.arctan(np.sqrt(3))*(-l12 - l13)/(-l12 +l13 + 2*l23)
+    if(l12 - l13 - 2*l23 < 0):
+        angl = angl + np.pi
+    
     return(angl)
 
 def find_lags(n12, n23, n13):
