@@ -75,6 +75,8 @@ n12, n23, n13 = make_correlations(data, 2, 3, 4)
 #Find number of lags
 l12, l23, l13 = find_lags(n12, n23, n13)
 
+print(l12, l23, l13)
+
 #Calculate the angle
 theta = get_angle(l12, l23, l13)
 
@@ -91,8 +93,6 @@ spectrum = np.fft.fft(data, axis=0)  # takes FFT of all channels
 #Fixes frequency axis from -16kHz to 16kHz
 freq = np.fft.fftshift(freq)
 spectrum = np.fft.fftshift(spectrum)
-
-print(l12, l23, l13)
 
 
 # Plot the results in two subplots
