@@ -37,15 +37,15 @@ def get_angle(l12, l23, l13):
 
 def find_lags(n12, n23, n13):
     maxLags = 6
-    n12 = n12[len(n12)//2-maxLags: len(n12)//2+maxLags-1]
-    n23 = n23[len(n23)//2-maxLags: len(n23)//2+maxLags-1]
-    n13 = n13[len(n13)//2-maxLags: len(n13)//2+maxLags-1]
+    n12 = n12[len(n12)//2-maxLags: len(n12)//2+maxLags+1]
+    n23 = n23[len(n23)//2-maxLags: len(n23)//2+maxLags+1]
+    n13 = n13[len(n13)//2-maxLags: len(n13)//2+maxLags+1]
 
     # Finds index of maximum value and translates it into lag in samples
     print(str(np.argmax(n12)) + " " + str(np.argmax(n23)) + " " + str(np.argmax(n13)))
-    l12 = -(np.argmax(n12) - len(n12)//2)
-    l23 = -(np.argmax(n23) - len(n23)//2)
-    l13 = -(np.argmax(n13) - len(n13)//2)
+    l12 = -(np.argmax(n12) - maxLags - 1)
+    l23 = -(np.argmax(n23) - maxLags - 1)
+    l13 = -(np.argmax(n13) - maxLags - 1)
     return(l12, l23, l13)
 
 def raspi_import(path, channels=5):
