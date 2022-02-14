@@ -8,14 +8,14 @@ def make_correlations(data, wanted_axis1, wanted_axis2, wanted_axis3): #This fun
     max_lag = 10  # The maximum lag possible with current configuration
 
     # Start with making the three full crosscorrelations
-    # n12 = np.correlate(data[:,wanted_axis1], data[:,wanted_axis2], 'same')
-    # n23 = np.correlate(data[:,wanted_axis2], data[:,wanted_axis3], 'same')
-    # n13 = np.correlate(data[:,wanted_axis1], data[:,wanted_axis3], 'same')
-
-    # autocorrelations
     n12 = np.correlate(data[:,wanted_axis1], data[:,wanted_axis2], 'same')
     n23 = np.correlate(data[:,wanted_axis2], data[:,wanted_axis3], 'same')
     n13 = np.correlate(data[:,wanted_axis1], data[:,wanted_axis3], 'same')
+
+    # autocorrelations
+    # n12 = np.correlate(data[:,wanted_axis1], data[:,wanted_axis1], 'same')
+    # n23 = np.correlate(data[:,wanted_axis2], data[:,wanted_axis2], 'same')
+    # n13 = np.correlate(data[:,wanted_axis1], data[:,wanted_axis1], 'same')
 
     plt.subplot(3, 1, 1)
     plt.plot(np.linspace(-len(n12)//2-1,  len(n12)//2, len(n12)), n12)
@@ -31,8 +31,13 @@ def make_correlations(data, wanted_axis1, wanted_axis2, wanted_axis3): #This fun
 
     return(n12, n23, n13)
 
+def get_angle(l12, l23, l13):
+    angl = np.arctan(np.sqrt(3))*(-l12 - l13)/(-l12 +l13 + 2*l23)
+    return(angl)
+
 def find_lags(n12, n23, n13):
     # Finds index of maximum value and translates it into lag in samples
+    print(str(np.argmax(n12)) + " " + str(np.argmax(n23)) + " " + str(np.argmax(n13)))
     l12 = -(np.argmax(n12) - len(n12)//2)
     l23 = -(np.argmax(n23) - len(n23)//2)
     l13 = -(np.argmax(n13) - len(n13)//2)
@@ -64,6 +69,11 @@ n12, n23, n13 = make_correlations(data, 2, 3, 4)
 
 #Find number of lags
 l12, l23, l13 = find_lags(n12, n23, n13)
+
+#Calculate the angle
+theta = get_angle(l12, l23, l13)
+
+print(theta)
 
 # Generate time axis
 num_of_samples = data.shape[0]  # returns shape of matrix
