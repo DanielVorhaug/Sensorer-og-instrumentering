@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import scipy.signal as signal
 import math
 
-def find_lags(data, wanted_axis1, wanted_axis2, wanted_axis3):
+def make_correlations(data, wanted_axis1, wanted_axis2, wanted_axis3): #This function will currently also plot the autocorrelations
     # creates an array with crosscorrelations
     max_lag = 10  # The maximum lag possible with current configuration
 
@@ -29,6 +29,9 @@ def find_lags(data, wanted_axis1, wanted_axis2, wanted_axis3):
     # n23 = n23[len(n23) // 2 - max_lag: len(n23) // 2 + max_lag]
     # n13 = n13[len(n13) // 2 - max_lag: len(n13) // 2 + max_lag]
 
+    return(n12, n23, n13)
+
+def find_lags(n12, n23, n13):
     # Finds index of maximum value and translates it into lag in samples
     l12 = -(np.argmax(n12) - len(n12)//2)
     l23 = -(np.argmax(n23) - len(n23)//2)
@@ -56,8 +59,11 @@ sample_period, data = raspi_import('Data\\09adcData Testing med 600Hz sinus.bin'
 data = signal.detrend(data, axis=0)  # removes DC component for each channel
 sample_period *= 1e-6  # change unit to micro seconds
 
+#make crosscorelations
+n12, n23, n13 = make_correlations(data, 2, 3, 4)
+
 #Find number of lags
-l12, l23, l13 = find_lags(data, 2, 3, 4)
+l12, l23, l13 = find_lags(n12, n23, n13)
 
 # Generate time axis
 num_of_samples = data.shape[0]  # returns shape of matrix
