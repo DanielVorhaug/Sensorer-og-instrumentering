@@ -36,9 +36,10 @@ def get_angle(l12, l23, l13):
     return(angl)
 
 def find_lags(n12, n23, n13):
-    # n12[len(n12)//2] = 0
-    # n23[len(n23)//2] = 0
-    # n13[len(n13)//2] = 0
+    maxLags = 6
+    n12 = n12[len(n12)//2-maxLags: len(n12)//2+maxLags-1]
+    n23 = n23[len(n23)//2-maxLags: len(n23)//2+maxLags-1]
+    n13 = n13[len(n13)//2-maxLags: len(n13)//2+maxLags-1]
 
     # Finds index of maximum value and translates it into lag in samples
     print(str(np.argmax(n12)) + " " + str(np.argmax(n23)) + " " + str(np.argmax(n13)))
