@@ -8,14 +8,14 @@ def make_correlations(data, wanted_axis1, wanted_axis2, wanted_axis3): #This fun
     max_lag = 10  # The maximum lag possible with current configuration
 
     # Start with making the three full crosscorrelations
-    n12 = np.correlate(data[:,wanted_axis1], data[:,wanted_axis2], 'same')
-    n23 = np.correlate(data[:,wanted_axis2], data[:,wanted_axis3], 'same')
-    n13 = np.correlate(data[:,wanted_axis1], data[:,wanted_axis3], 'same')
+    # n12 = np.correlate(data[:,wanted_axis1], data[:,wanted_axis2], 'same')
+    # n23 = np.correlate(data[:,wanted_axis2], data[:,wanted_axis3], 'same')
+    # n13 = np.correlate(data[:,wanted_axis1], data[:,wanted_axis3], 'same')
 
     # autocorrelations
-    # n12 = np.correlate(data[:,wanted_axis1], data[:,wanted_axis1], 'same')
-    # n23 = np.correlate(data[:,wanted_axis2], data[:,wanted_axis2], 'same')
-    # n13 = np.correlate(data[:,wanted_axis1], data[:,wanted_axis1], 'same')
+    n12 = np.correlate(data[:,wanted_axis1], data[:,wanted_axis1], 'same')
+    n23 = np.correlate(data[:,wanted_axis2], data[:,wanted_axis2], 'same')
+    n13 = np.correlate(data[:,wanted_axis1], data[:,wanted_axis1], 'same')
 
     plt.subplot(3, 1, 1)
     plt.plot(np.linspace(-len(n12)//2-1,  len(n12)//2, len(n12)), n12)
@@ -43,9 +43,9 @@ def find_lags(n12, n23, n13):
 
     # Finds index of maximum value and translates it into lag in samples
     print(str(np.argmax(n12)) + " " + str(np.argmax(n23)) + " " + str(np.argmax(n13)))
-    l12 = -(np.argmax(n12) - maxLags - 1)
-    l23 = -(np.argmax(n23) - maxLags - 1)
-    l13 = -(np.argmax(n13) - maxLags - 1)
+    l12 = -(np.argmax(n12) - maxLags)
+    l23 = -(np.argmax(n23) - maxLags)
+    l13 = -(np.argmax(n13) - maxLags)
     return(l12, l23, l13)
 
 def raspi_import(path, channels=5):
