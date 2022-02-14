@@ -1,3 +1,4 @@
+from re import T
 import numpy as np
 import matplotlib.pyplot as plt
 import scipy.signal as signal
@@ -46,7 +47,7 @@ for i in range(1,6):
     #plt.title("Time domain signal")
     plt.xlabel("Time [us]")
     plt.ylabel("Voltage")
-    plt.plot(t, data[:,i-1])
+    plt.plot(t[1:], data[1:,i-1])
 
 #for i in range(3,6):
 #    plt.subplot(3, 1, i-2)
