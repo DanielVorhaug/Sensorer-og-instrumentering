@@ -13,9 +13,9 @@ def make_correlations(data, wanted_axis1, wanted_axis2, wanted_axis3): #This fun
     # n13 = np.correlate(data[:,wanted_axis1], data[:,wanted_axis3], 'same')
 
     # autocorrelations
-    n12 = np.correlate(data[:,wanted_axis1], data[:,wanted_axis1], 'same')
-    n23 = np.correlate(data[:,wanted_axis2], data[:,wanted_axis2], 'same')
-    n13 = np.correlate(data[:,wanted_axis3], data[:,wanted_axis3], 'same')
+    n12 = np.correlate(data[:,wanted_axis1], data[:,wanted_axis2], 'same')
+    n23 = np.correlate(data[:,wanted_axis2], data[:,wanted_axis3], 'same')
+    n13 = np.correlate(data[:,wanted_axis1], data[:,wanted_axis3], 'same')
 
     plt.subplot(3, 1, 1)
     plt.plot(np.linspace(-len(n12)//2-1,  len(n12)//2, len(n12)), n12)
