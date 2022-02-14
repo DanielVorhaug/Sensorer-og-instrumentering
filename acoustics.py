@@ -54,7 +54,7 @@ def raspi_import(path, channels=5):
 
 #Channel  2 is "upper left", channel 3 is "lower mid", channel 4 is "upper right"
 # Import data from bin file
-sample_period, data = raspi_import('Data\\09adcData Testing med 600Hz sinus.bin')
+sample_period, data = raspi_import('adcData.bin')
 
 data = signal.detrend(data, axis=0)  # removes DC component for each channel
 sample_period *= 1e-6  # change unit to micro seconds
