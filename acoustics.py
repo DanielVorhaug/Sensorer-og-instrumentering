@@ -13,9 +13,9 @@ def make_correlations(data, wanted_axis1, wanted_axis2, wanted_axis3): #This fun
     # n13 = np.correlate(data[:,wanted_axis1], data[:,wanted_axis3], 'same')
 
     # autocorrelations
-    n12 = np.correlate(data[:,wanted_axis1], data[:,wanted_axis2], 'same')
-    n23 = np.correlate(data[:,wanted_axis2], data[:,wanted_axis3], 'same')
-    n13 = np.correlate(data[:,wanted_axis1], data[:,wanted_axis3], 'same')
+    n12 = np.correlate(data[1:,wanted_axis1], data[1:,wanted_axis2], 'same')
+    n23 = np.correlate(data[1:,wanted_axis2], data[1:,wanted_axis3], 'same')
+    n13 = np.correlate(data[1:,wanted_axis1], data[1:,wanted_axis3], 'same')
 
     plt.subplot(3, 1, 1)
     plt.plot(np.linspace(-len(n12)//2-1,  len(n12)//2, len(n12)), n12)
@@ -32,6 +32,10 @@ def make_correlations(data, wanted_axis1, wanted_axis2, wanted_axis3): #This fun
     return(n12, n23, n13)
 
 def find_lags(n12, n23, n13):
+    # n12[len(n12)//2] = 0
+    # n23[len(n23)//2] = 0
+    # n13[len(n13)//2] = 0
+
     # Finds index of maximum value and translates it into lag in samples
     l12 = -(np.argmax(n12) - len(n12)//2)
     l23 = -(np.argmax(n23) - len(n23)//2)
