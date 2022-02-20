@@ -1,4 +1,5 @@
 from re import T
+from turtle import shape
 import numpy as np
 import matplotlib.pyplot as plt
 import scipy.signal as signal
@@ -18,12 +19,28 @@ def raspi_import(path, channels=5):
         data = data.reshape((-1, channels))
     return sample_period, data
 
+def interpolate(sample_period, data, factor):
+    new_data = np.zeros((data.shape[0] * factor, data.shape[1]))
+
+    for i in range(data.shape[1]):
+        num_of_samples = data.shape[0]
+        old_t = np.linspace(start=0, stop=num_of_samples*sample_period, num=num_of_samples)
+        new_t = np.linspace(start=0, stop=num_of_samples*sample_period, num=num_of_samples * factor)
+        new_data[:,i] = np.interp(x=new_t, xp=old_t, fp=data[:,i])
+    
+    new_sample_period = sample_period / factor
+    return new_data, new_sample_period
 
 # Import data from bin file
-sample_period, data = raspi_import('adcData.bin')
+sample_period, data_raw = raspi_import('adcData.bin')
+data = data_raw[5:,:]
 
 data = signal.detrend(data, axis=0)  # removes DC component for each channel
 sample_period *= 1e-6  # change unit to micro seconds
+
+#Interpolate
+interpolation_factor = 4
+data, sample_period = interpolate(sample_period, data, interpolation_factor)
 
 # Generate time axis
 num_of_samples = data.shape[0]  # returns shape of matrix
@@ -47,7 +64,7 @@ for i in range(1,6):
     #plt.title("Time domain signal")
     plt.xlabel("Time [us]")
     plt.ylabel("Voltage")
-    plt.plot(t[1:], data[1:,i-1])
+    plt.plot(t[1:], data[1:,i-1], ".")
 
 #for i in range(3,6):
 #    plt.subplot(3, 1, i-2)
