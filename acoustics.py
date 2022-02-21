@@ -3,16 +3,13 @@ import matplotlib.pyplot as plt
 import scipy.signal as signal
 import math
 
-def make_correlations(data, wanted_axis1, wanted_axis2, wanted_axis3): #This function will currently also plot the autocorrelations
-    # creates an array with crosscorrelations
-    max_lag = 10  # The maximum lag possible with current configuration
-
-    # Start with making the three full crosscorrelations
+def make_correlations(data, wanted_axis1, wanted_axis2, wanted_axis3):
+    # Makes three full crosscorrelations
     n12 = np.correlate(data[:,wanted_axis1], data[:,wanted_axis2], 'same')
     n23 = np.correlate(data[:,wanted_axis2], data[:,wanted_axis3], 'same')
     n13 = np.correlate(data[:,wanted_axis1], data[:,wanted_axis3], 'same')
 
-    # autocorrelations
+    # autocorrelations, was used for testing
     # n12 = np.correlate(data[:,wanted_axis1], data[:,wanted_axis1], 'same')
     # n23 = np.correlate(data[:,wanted_axis2], data[:,wanted_axis2], 'same')
     # n13 = np.correlate(data[:,wanted_axis3], data[:,wanted_axis3], 'same')
@@ -34,7 +31,7 @@ def find_lags(n12, n23, n13):
     n13 = n13[len(n13)//2-maxLags: len(n13)//2+maxLags+1]
 
     # Finds index of maximum value and translates it into lag in samples
-    print(str(np.argmax(n12)) + " " + str(np.argmax(n23)) + " " + str(np.argmax(n13)))
+    #print(str(np.argmax(n12)) + " " + str(np.argmax(n23)) + " " + str(np.argmax(n13))) Things are currently working and as such this only causes
     l12 = -(np.argmax(n12) - maxLags)
     l23 = -(np.argmax(n23) - maxLags)
     l13 = -(np.argmax(n13) - maxLags)
@@ -86,7 +83,7 @@ n12, n23, n13 = make_correlations(data, 2, 3, 4)
 #Find number of lags
 l12, l23, l13 = find_lags(n12, n23, n13)
 
-print(f"Lags: 1-2:{l12}, 2-3:{l23}, 1-3:{l13}")
+#print(f"Lags: 1-2:{l12}, 2-3:{l23}, 1-3:{l13}") Usefull for testing, useless right now
 
 #Calculate the angle
 theta = get_angle(l12, l23, l13)
