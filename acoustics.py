@@ -77,7 +77,7 @@ def importAndCalculate(plotCorrs = 0):
     sample_period *= 1e-6  # change unit to micro seconds
 
     #Interpolate
-    interpolation_factor = 3
+    interpolation_factor = 1 #This should be set to one as long as we do not interpolate
     #data, sample_period = interpolate(sample_period, data, interpolation_factor) #Caused major issues so commented out for now
 
     #make crosscorelations
@@ -101,11 +101,11 @@ def importAndCalculate(plotCorrs = 0):
 def plot_correlations(n12, n23, n13):
     #Plots: commented out for quick testing
     plt.subplot(3, 1, 1)
-    plt.plot(np.linspace(-len(n12)//2-1,  len(n12)//2, len(n12)), n12, ".")
+    plt.plot(np.linspace(-len(n12)//2 + 1, len(n12)//2, len(n12)), n12, ".")
     plt.subplot(3, 1, 2)
-    plt.plot(np.linspace(-len(n12)//2-1, len(n12)//2, len(n12)), n23, ".")
+    plt.plot(np.linspace(-len(n12)//2 + 1, len(n12)//2, len(n12)), n23, ".")
     plt.subplot(3, 1, 3)
-    plt.plot(np.linspace(-len(n12)//2-1, len(n12)//2, len(n12)), n13, ".")
+    plt.plot(np.linspace(-len(n12)//2 + 1, len(n12)//2, len(n12)), n13, ".")
     plt.show()
 
     return
@@ -121,9 +121,13 @@ def sampleAndStart(): #The function that calls for the RPi to begin sampling, tr
         angles[i] = importAndCalculate() #Starts importAndCalculate and stores the found angle for later use
         print(f"Test {i} finished, waiting {waitTime} seconds.")
 
+    print() #Just to get a line of seperation
+    # var = np.var(angles)
+    # print(f"Variance was estimated to {var} radians. Angles will come on next line")
     for ang in angles:
-        print(ang, sep = " , ", end=" ")
+        print(ang, sep = ", ", end=" ")
 
-    return()
+    return
 
-sampleAndStart()
+#sampleAndStart()
+importAndCalculate(1)
