@@ -18,7 +18,10 @@ def make_correlations(data, wanted_axis1, wanted_axis2, wanted_axis3):
 
     return(n12, n23, n13)
 
-
+# Bytt fra manuell rads til grader til numpy sin innebygde
+# Forenkle uttrykket
+# Bytt til np.arctan2
+# 
 def get_angle(l12, l23, l13):
     angl = np.arctan(np.sqrt(3)*(-l12 - l13)/(-l12 +l13 + 2*l23))
     angl -= np.pi/2 #To have the result be between -pi and pi
@@ -128,12 +131,14 @@ def sampleAndStart(once = 0, plot = 0): #The function that calls for the RPi to 
     else:
         N_runs = int(input("How many times do you want to run the test?"))
 
-    waitTime = 5
+    waitTime = 2
     angles = np.zeros(N_runs)
 
     for i in range(N_runs):
+        print("SHUT THE FUCK UP!")
         sleep(waitTime)
         call(r'angleFinder.bat')
+        print("Now you can speak")
         angles[i] = importAndCalculate(plot) #Starts importAndCalculate and stores the found angle for later use
         print(f"Test {i} finished, waiting {waitTime} seconds.")
 
