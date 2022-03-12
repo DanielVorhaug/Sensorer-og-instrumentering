@@ -49,7 +49,7 @@ def plot_FFTs(to_plot, Ts, I_channel = 0):
     freqs = sp.fft.fftshift(freqs)
 
     #Calculates power spectrum in dB
-    spectrum = 10*np.log10(FFT)
+    spectrum = 20*np.log10(FFT)
 
     number_of_plots = FFT.shape[1]
     for i in range(number_of_plots):
@@ -77,7 +77,7 @@ def plot_complex_FFT(to_plot, Ts, I_channel = 0, Q_channel = 1):
     freqs = sp.fft.fftshift(freqs)
 
     #Calculates power spectrum in dB
-    spectrum = 10*np.log10(FFT)
+    spectrum = 20*np.log10(FFT)
 
     plt.plot(freqs, spectrum, ".")
     plt.xlabel("Frequency [Hz]")
