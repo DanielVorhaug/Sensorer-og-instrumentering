@@ -47,6 +47,8 @@ def plot_FFTs(to_plot, Ts, I_channel = 0):
     #shifting frequencies for nicer plots
     FFT = sp.fft.fftshift(FFT)
     freqs = sp.fft.fftshift(freqs)
+
+    #Calculates power spectrum in dB
     spectrum = 10*np.log10(FFT)
 
     number_of_plots = FFT.shape[1]
@@ -61,6 +63,27 @@ def plot_FFTs(to_plot, Ts, I_channel = 0):
         plt.plot(freqs, spectrum[:, i], ".")
         plt.grid()
     
+    plt.show()
+
+    return
+
+def plot_complex_FFT(to_plot, Ts, I_channel = 0, Q_channel = 1):
+    complex_data = to_plot[:, I_channel] + to_plot[:, Q_channel]*1j
+    FFT = sp.fft.fft(complex_data)
+    freqs = sp.fft.fftfreq(complex_data.shape[0], Ts)
+
+    #Frequency shift for better plot
+    FFT = sp.fft.fftshift(FFT)
+    freqs = sp.fft.fftshift(freqs)
+
+    #Calculates power spectrum in dB
+    spectrum = 10*np.log10(FFT)
+
+    plt.plot(freqs, spectrum, ".")
+    plt.xlabel("Frequency [Hz]")
+    plt.ylabel("Power [dB]")
+    plt.title("Complex FFT")
+    plt.grid()
     plt.show()
 
     return
@@ -95,6 +118,7 @@ def find_speed(path, I_channel = 0, Q_channel = 1):
     sample_period *= 1e-6  # change unit to micro seconds
 
     plot_FFTs(data, sample_period, I_channel)
+    plot_complex_FFT(data, sample_period, I_channel, Q_channel)
 
     #Calculates the speed of movement from the frequency
     speed = calc_speed(data, sample_period, I_channel, Q_channel)
