@@ -73,7 +73,7 @@ def plot_complex_FFT(to_plot, Ts, I_channel = 0, Q_channel = 1):
     freqs = sp.fft.fftfreq(complex_data.shape[0], Ts)
 
     #Frequency shift for better plot
-    FFT = sp.fft.fftshift(FFT)
+    FFT = np.abs(sp.fft.fftshift(FFT))
     freqs = sp.fft.fftshift(freqs)
 
     #Calculates power spectrum in dB
@@ -98,7 +98,7 @@ def calc_speed(sig, Ts,  I_channel = 0, Q_channel = 1):
     freqs = sp.fft.fftfreq(complex_data.shape[0], Ts)
 
     #Finds the frequency caused by movement
-    peak = np.argmax(FFT) #The channel does not matter, but we must choose one
+    peak = np.argmax(np.abs(FFT)) #The channel does not matter, but we must choose one
     fd = freqs[peak] #Doppler frequency (hopefully)
 
     v = (c*fd)/(2*f0)
