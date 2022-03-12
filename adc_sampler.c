@@ -90,6 +90,7 @@ void getReading(int adcs, int *MISO, int OOL, int bytes, int bits, char *buf)
 
 int main(int argc, char *argv[])
 {
+    printf("\nStarting...\n");
     // Parse command line arguments
     long num_samples = 0;
     if (argc <= 1) {
