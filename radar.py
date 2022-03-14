@@ -7,6 +7,13 @@ import math
 from subprocess import call
 from time import sleep
 
+test_distance = np.array([4.0])
+test_time = np.array([ [4.48, 5.42, 4.44, 4.07, 5.54, 5.89], [3.33, 3.38, 3.42, 3.32, 0.0, 0.0], [2.18, 2.14, 2.00, 1.98, 0.0, 0.0], [2.49, 2.57, 2.61, 2.57, 0.0, 0.0], [1.74, 1.70, 1.78, 1.85, 0.0, 0.0], [1.06, 0.99, 1.20, 1.26, 0.0, 0.0]])
+test_velocity = np.true_divide(test_time, test_distance)
+
+print(test_time)
+print(test_velocity)
+
 
 def raspi_import(path, channels=5):
     """
