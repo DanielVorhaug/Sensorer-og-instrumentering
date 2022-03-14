@@ -130,7 +130,7 @@ def calc_var(groupNr, resultNr, I_channel=0, Q_channel=1):
     for i in range(resultNr):
         f = "Radar_test_gjennomgang/" + str(groupNr) + str(i)
         sample_period, data_raw = raspi_import(f)
-        data = data_raw[:, 0:2] #removes data from ADCs not in use (Requires that I and Q use ADC 0 and 1)
+        data = data_raw[10:, 0:2] #removes data from ADCs not in use (Requires that I and Q use ADC 0 and 1)
         data = signal.detrend(data, axis=0)  #removes DC component for each channel (should not matter as we have a filter)
         sample_period *= 1e-6  # change unit to micro seconds
 
@@ -138,6 +138,18 @@ def calc_var(groupNr, resultNr, I_channel=0, Q_channel=1):
 
     variance = np.var(speeds)
     return(variance)
+
+def plot_some_results(I_channel = 0, Q_channel = 1):
+    for i in range(6): #6 is the number of different speeds we tested at
+        f = "Radar_test_gjennomgang/" + str(i) + "0"
+        sample_period, data_raw = raspi_import(f)
+        data = data_raw[10:, 0:2] #removes data from ADCs not in use (Requires that I and Q use ADC 0 and 1)
+        data = signal.detrend(data, axis=0)  #removes DC component for each channel (should not matter as we have a filter)
+        sample_period *= 1e-6  # change unit to micro seconds
+
+        plot_complex_FFT(data, sample_period, I_channel, Q_channel)
+
+    return
 
 def find_speed(path, I_channel = 0, Q_channel = 1):
     sample_period, data_raw = raspi_import(path)
@@ -147,7 +159,7 @@ def find_speed(path, I_channel = 0, Q_channel = 1):
     # plt.show()
 
     #Just some spring cleaning
-    data = data_raw[:, 0:2] #removes data from ADCs not in use (Requires that I and Q use ADC 0 and 1)
+    data = data_raw[10:, 0:2] #removes data from ADCs not in use (Requires that I and Q use ADC 0 and 1)
     data = signal.detrend(data, axis=0)  #removes DC component for each channel (should not matter as we have a filter)
     sample_period *= 1e-6  # change unit to micro seconds
 
