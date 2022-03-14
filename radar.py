@@ -1,7 +1,6 @@
 from cmath import log10
 import numpy as np
 import matplotlib.pyplot as plt
-from paramiko import Channel
 import scipy as sp
 import scipy.signal as signal
 import math
@@ -115,8 +114,11 @@ def calc_speed(sig, Ts,  I_channel = 0, Q_channel = 1):
     FFT = sp.fft.fft(complex_data)
     freqs = sp.fft.fftfreq(complex_data.shape[0], Ts)
 
+    limit_hz = 30
+    limit_sample = math.ceil(limit_hz * complex_data.shape[0] * Ts)
+    print(limit_sample, complex_data.shape[0], Ts)
     #Finds the frequency caused by movement
-    peak = np.argmax(np.abs(FFT)) #The channel does not matter, but we must choose one
+    peak = np.argmax(np.abs(FFT[limit_sample:-limit_sample])) #The channel does not matter, but we must choose one
     fd = freqs[peak] #Doppler frequency (hopefully)
 
     v = (c*fd)/(2*f0)
@@ -135,16 +137,15 @@ def find_speed(path, I_channel = 0, Q_channel = 1):
     data = signal.detrend(data, axis=0)  #removes DC component for each channel (should not matter as we have a filter)
     sample_period *= 1e-6  # change unit to micro seconds
 
-    plot_FFTs(data, sample_period, I_channel)
-    plot_complex_FFT(data, sample_period, I_channel, Q_channel)
-
     #Calculates the speed of movement from the frequency
     speed = calc_speed(data, sample_period, I_channel, Q_channel)
+    
+    #plot_FFTs(data, sample_period, I_channel)
+    plot_complex_FFT(data, sample_period, I_channel, Q_channel)
 
     #Calculates SNR
-    print(calc_SNR(data, sample_period, I_channel, Q_channel))
+    #print(calc_SNR(data, sample_period, I_channel, Q_channel))
 
-    print(speed)
     return(speed)
 
     
