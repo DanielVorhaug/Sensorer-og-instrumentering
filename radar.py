@@ -90,12 +90,11 @@ def plot_complex_FFT(to_plot, Ts, I_channel = 0, Q_channel = 1):
     return
 
 def calc_SNR(sig, Ts, I_channel, Q_channel):
-    complex_data = sig[:, I_channel]# + sig[:, Q_channel]*1j
+    complex_data = sig[:, I_channel] + sig[:, Q_channel]*1j
     FFT = sp.fft.fft(complex_data)
-    #FFT = sp.fft.fftshift(FFT)
 
     #Finds the frequency caused by movement
-    peak = np.argmax(np.abs(FFT)) #The channel does not matter, but we must 
+    peak = np.argmax(np.abs(FFT))
     
     n = FFT.shape[0]
 
