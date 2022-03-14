@@ -31,14 +31,14 @@ fig = plt.figure()
 ax1 = fig.add_subplot(2, 1, 1)
 ax1.plot(time,ch2)
 ax1.set_xscale("log")
-ax1.set_xlabel("Amplitude [dB]")
-ax1.set_ylabel("Frekvens [Hz]")
+ax1.set_ylabel("Amplitude [dB]")
+ax1.set_xlabel("Frekvens [Hz]")
 
 ax2 = fig.add_subplot(2, 1, 2)
 ax2.plot(time,ch1)
 ax2.set_xscale("log")
-ax2.set_xlabel("Amplitude [dB]")
-ax2.set_ylabel("Frekvens [Hz]")
+ax2.set_ylabel("Amplitude [dB]")
+ax2.set_xlabel("Frekvens [Hz]")
 
 fig1 = plt.figure()
 
@@ -69,14 +69,14 @@ ch2 = [p[2] for p in data]
 ax3 = fig1.add_subplot(2, 1, 1)
 ax3.plot(time,ch2)
 ax3.set_xscale("log")
-ax3.set_xlabel("Amplitude [dB]")
-ax3.set_ylabel("Frekvens [Hz]")
+ax3.set_ylabel("Amplitude [dB]")
+ax3.set_xlabel("Frekvens [Hz]")
 
 ax4 = fig1.add_subplot(2, 1, 2)
 ax4.plot(time,ch1)
 ax4.set_xscale("log")
-ax4.set_xlabel("Amplitude [dB]")
-ax4.set_ylabel("Frekvens [Hz]")
+ax4.set_ylabel("Amplitude [dB]")
+ax4.set_xlabel("Frekvens [Hz]")
 
 pylab.show()
 

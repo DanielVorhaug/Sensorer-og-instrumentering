@@ -39,7 +39,7 @@ data = signal.detrend(data, axis=0)  # removes DC component for each channel
 sample_period *= 1e-6  # change unit to micro seconds
 
 #Interpolate
-interpolation_factor = 4
+interpolation_factor = 1
 data, sample_period = interpolate(sample_period, data, interpolation_factor)
 
 # Generate time axis
@@ -60,19 +60,19 @@ spectrum = np.fft.fftshift(spectrum)
 # NOTICE: This lazily plots the entire matrixes. All the channels will be put into the same plots.
 # If you want a single channel, use data[:,n] to get channel n
 
-# for i in range(1,3):
-#     plt.subplot(2, 1, i)
-#     plt.title("Time domain signal")
-#     plt.xlabel("Time [us]")
-#     plt.ylabel("Voltage")
-#     plt.plot(t[:], data[:,i-1], ".")    
-
 for i in range(1,3):
-   plt.subplot(2, 1, i)
-   #plt.title("Power spectrum of signal")
-   plt.xlabel("Frequency [Hz]")
-   plt.ylabel("Power [dB]")
-   plt.plot(freq, 20*np.log10(np.abs(spectrum[:,i-1])))#, ".") # get the power spectrum
+    plt.subplot(2, 1, i)
+    plt.title("Time domain signal")
+    plt.xlabel("Time [us]")
+    plt.ylabel("Voltage")
+    plt.plot(t[:], data[:,i-1], ".")    
+
+# for i in range(1,3):
+#    plt.subplot(2, 1, i)
+#    #plt.title("Power spectrum of signal")
+#    plt.xlabel("Frequency [Hz]")
+#    plt.ylabel("Power [dB]")
+#    plt.plot(freq, 20*np.log10(np.abs(spectrum[:,i-1])))#, ".") # get the power spectrum
 
 # print(freq[: math.ceil(len(freq)/2)])
 # plt.subplot(2, 1, 1)

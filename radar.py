@@ -114,11 +114,11 @@ def calc_speed(sig, Ts,  I_channel = 0, Q_channel = 1):
     FFT = sp.fft.fft(complex_data)
     freqs = sp.fft.fftfreq(complex_data.shape[0], Ts)
 
-    limit_hz = 30
+    limit_hz = 60
     limit_sample = math.ceil(limit_hz * complex_data.shape[0] * Ts)
-    print(limit_sample, complex_data.shape[0], Ts)
+    
     #Finds the frequency caused by movement
-    peak = np.argmax(np.abs(FFT[limit_sample:-limit_sample])) #The channel does not matter, but we must choose one
+    peak = limit_sample + np.argmax(np.abs(FFT[limit_sample:-limit_sample])) #The channel does not matter, but we must choose one
     fd = freqs[peak] #Doppler frequency (hopefully)
 
     v = (c*fd)/(2*f0)
@@ -153,4 +153,4 @@ def find_speed(path, I_channel = 0, Q_channel = 1):
 
 filepath = 'adcData.bin' #Filepath to datafile
 v = find_speed(filepath)
-print(v)
+print("Velocity: " , v)
