@@ -1,6 +1,7 @@
 from cmath import log10
 import numpy as np
 import matplotlib.pyplot as plt
+from paramiko import Channel
 import scipy as sp
 import scipy.signal as signal
 import math
@@ -88,6 +89,24 @@ def plot_complex_FFT(to_plot, Ts, I_channel = 0, Q_channel = 1):
 
     return
 
+def calc_SNR(sig, Ts, I_channel, Q_channel):
+    complex_data = sig[:, I_channel]# + sig[:, Q_channel]*1j
+    FFT = sp.fft.fft(complex_data)
+    #FFT = sp.fft.fftshift(FFT)
+
+    #Finds the frequency caused by movement
+    peak = np.argmax(np.abs(FFT)) #The channel does not matter, but we must 
+    
+    n = FFT.shape[0]
+
+    noise = np.delete(FFT, [math.floor(peak-n*0.01), math.ceil(peak+n*0.01)] )
+
+    noise_avg = np.average(np.abs(noise))
+
+    SNR = 20*np.log10(np.abs(FFT[peak])/noise_avg)
+
+    return(SNR)
+
 def calc_speed(sig, Ts,  I_channel = 0, Q_channel = 1):
     #Removed a factor of 10^8 from f0 and c as they get divided by each other
     f0 = 24.13*10 #Frequency of the radar
@@ -122,6 +141,9 @@ def find_speed(path, I_channel = 0, Q_channel = 1):
 
     #Calculates the speed of movement from the frequency
     speed = calc_speed(data, sample_period, I_channel, Q_channel)
+
+    #Calculates SNR
+    print(calc_SNR(data, sample_period, I_channel, Q_channel))
 
     print(speed)
     return(speed)
