@@ -128,7 +128,7 @@ def calc_speed(sig, Ts,  I_channel = 0, Q_channel = 1):
 def calc_var(groupNr, resultNr, I_channel=0, Q_channel=1):
     speeds = []
     for i in range(resultNr):
-        f = "Radar_test_gjennomgang/" + str(groupNr) + str(i)
+        f = "Radar_test_gjennomgang/" + str(groupNr) + str(i) + ".bin"
         sample_period, data_raw = raspi_import(f)
         data = data_raw[10:, 0:2] #removes data from ADCs not in use (Requires that I and Q use ADC 0 and 1)
         data = signal.detrend(data, axis=0)  #removes DC component for each channel (should not matter as we have a filter)
@@ -141,7 +141,7 @@ def calc_var(groupNr, resultNr, I_channel=0, Q_channel=1):
 
 def plot_some_results(I_channel = 0, Q_channel = 1):
     for i in range(6): #6 is the number of different speeds we tested at
-        f = "Radar_test_gjennomgang/" + str(i) + "0"
+        f = "Radar_test_gjennomgang/" + str(i) + "0" + ".bin"
         sample_period, data_raw = raspi_import(f)
         data = data_raw[10:, 0:2] #removes data from ADCs not in use (Requires that I and Q use ADC 0 and 1)
         data = signal.detrend(data, axis=0)  #removes DC component for each channel (should not matter as we have a filter)
