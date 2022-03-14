@@ -125,6 +125,20 @@ def calc_speed(sig, Ts,  I_channel = 0, Q_channel = 1):
 
     return(v)
 
+def calc_var(groupNr, resultNr, I_channel=0, Q_channel=1):
+    speeds = []
+    for i in range(resultNr):
+        f = "Radar_test_gjennomgang/" + str(groupNr) + str(i)
+        sample_period, data_raw = raspi_import(f)
+        data = data_raw[:, 0:2] #removes data from ADCs not in use (Requires that I and Q use ADC 0 and 1)
+        data = signal.detrend(data, axis=0)  #removes DC component for each channel (should not matter as we have a filter)
+        sample_period *= 1e-6  # change unit to micro seconds
+
+        speeds.append(calc_speed(data, sample_period, I_channel, Q_channel))
+
+    variance = np.var(speeds)
+    return(variance)
+
 def find_speed(path, I_channel = 0, Q_channel = 1):
     sample_period, data_raw = raspi_import(path)
 
