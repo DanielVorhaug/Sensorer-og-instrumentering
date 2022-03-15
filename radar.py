@@ -97,16 +97,20 @@ def plot_complex_FFT(to_plot, Ts, I_channel = 0, Q_channel = 1):
 
     return
 
-def calc_SNR(sig, Ts, I_channel, Q_channel):
+def calc_SNR(sig, Ts, I_channel = 0, Q_channel = 1):
     complex_data = sig[:, I_channel] + sig[:, Q_channel]*1j
     FFT = sp.fft.fft(complex_data)
 
     #Finds the frequency caused by movement
-    peak = np.argmax(np.abs(FFT))
+    limit_hz = 60
+    limit_sample = math.ceil(limit_hz * complex_data.shape[0] * Ts)
+    
+    #Finds the frequency caused by movement
+    peak = limit_sample + np.argmax(np.abs(FFT[limit_sample:-limit_sample]))
     
     n = FFT.shape[0]
 
-    noise = np.delete(FFT, [math.floor(peak-n*0.01), math.ceil(peak+n*0.01)] )
+    noise = np.delete(FFT, [max(math.floor(peak-n*0.01), 0), min(math.ceil(peak+n*0.01), n-1)])
 
     noise_avg = np.average(np.abs(noise))
 
@@ -180,7 +184,7 @@ def find_speed(path, I_channel = 0, Q_channel = 1):
     plot_complex_FFT(data, sample_period, I_channel, Q_channel)
 
     #Calculates SNR
-    #print(calc_SNR(data, sample_period, I_channel, Q_channel))
+    print(f"SNR: {calc_SNR(data, sample_period, I_channel, Q_channel)}")
 
     return(speed)
 
@@ -207,10 +211,26 @@ def calc_est_error(I_channel = 0, Q_channel = 1):
     return(speeds)
 
 
-filepath = 'adcData.bin' #Filepath to datafile
-# v = find_speed(filepath)
-# print("Velocity: " , v)
+def calc_all_SNR():
+    for i in range(6):
+        for j in range(4):
+            filepath = 'Radar_test_gjennomgang/' + str(i) + str(j) + '.bin' #Filepath to datafile
 
-#plot_some_results()
+            sample_period, data_raw = raspi_import(filepath)
 
-print(calc_est_error())
+            data = data_raw[10:, 0:2] #removes data from ADCs not in use (Requires that I and Q use ADC 0 and 1)
+            data = signal.detrend(data, axis=0)  #removes DC component for each channel (should not matter as we have a filter)
+            sample_period *= 1e-6  # change unit to micro seconds
+
+            #Calculates SNR
+            print(f"SNR: {calc_SNR(data, sample_period)}")
+
+
+calc_all_SNR()
+
+filepath = 'Radar_test_gjennomgang/00.bin' #Filepath to datafile
+v = find_speed(filepath)
+print("Velocity: " , v)
+
+
+#print(calc_est_error())
