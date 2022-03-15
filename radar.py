@@ -1,4 +1,5 @@
 from cmath import log10
+from tokenize import group
 import numpy as np
 import matplotlib.pyplot as plt
 import scipy as sp
@@ -184,9 +185,33 @@ def find_speed(path, I_channel = 0, Q_channel = 1):
 
     return(speed)
 
-    
+def calc_est_error(I_channel = 0, Q_channel = 1):
+    i = 0
+    speeds = []
+    for sub_array in test_velocity: #Goes through each sub_array to calculate estimation error
+        group_speeds = []
+        for j in range(4): #Calculates estimation array for each value in the subarray
+            f = "Radar_test_gjennomgang/" + str(i) + str(j) + ".bin"
+            sample_period, data_raw = raspi_import(f)
+            data = data_raw[10:, 0:2] #removes data from ADCs not in use (Requires that I and Q use ADC 0 and 1)
+            data = signal.detrend(data, axis=0)  #removes DC component for each channel (should not matter as we have a filter)
+            sample_period *= 1e-6  # change unit to micro seconds
+
+            value = sub_array[j]
+            estimated_value = calc_speed(data, sample_period, I_channel, Q_channel)
+            print(value)
+            print(estimated_value)
+            group_speeds.append(value - estimated_value) #Appends the estimation error of the current value
+        speeds.append(group_speeds)
+        i += 1
+
+    return(speeds)
 
 
 filepath = 'adcData.bin' #Filepath to datafile
-v = find_speed(filepath)
-print("Velocity: " , v)
+# v = find_speed(filepath)
+# print("Velocity: " , v)
+
+#plot_some_results()
+
+print(calc_est_error())
