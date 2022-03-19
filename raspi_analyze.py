@@ -33,7 +33,7 @@ def interpolate(sample_period, data, factor):
 
 # Import data from bin file
 sample_period, data_raw = raspi_import('adcData.bin')
-data = data_raw[5:,:]
+data = data_raw[4000:,:]
 
 data = signal.detrend(data, axis=0)  # removes DC component for each channel
 sample_period *= 1e-6  # change unit to micro seconds

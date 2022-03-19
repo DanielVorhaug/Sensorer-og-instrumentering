@@ -173,7 +173,7 @@ def find_speed(path, I_channel = 0, Q_channel = 1):
     # plt.show()
 
     #Just some spring cleaning
-    data = data_raw[10:, 0:2] #removes data from ADCs not in use (Requires that I and Q use ADC 0 and 1)
+    data = data_raw[4000:, 0:2] #removes data from ADCs not in use (Requires that I and Q use ADC 0 and 1)
     data = signal.detrend(data, axis=0)  #removes DC component for each channel (should not matter as we have a filter)
     sample_period *= 1e-6  # change unit to micro seconds
 
