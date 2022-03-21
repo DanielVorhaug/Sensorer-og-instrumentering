@@ -52,21 +52,50 @@ def find_pulse(Ts,freq, spectrum):
 
     return(fd)
 
+filter_parameteres = [1,0,0] #window_length, polyorder and derivorder
+
 def update(val):
-    current_v = int(win_size.val)
-    data_filtered = signal.savgol_filter(data, current_v, 3, 3, mode="constant")
+    parameters = list()
+    for i in wins:
+        parameters.append(i.val)
+    filter_parameteres = parameters
+#    window_length = int(wins[0].val)
+    update_figure(filter_parameteres)
+   
+
+def update_figure(filter_parameteres):
+    data_filtered = signal.savgol_filter(data, filter_parameteres[0], filter_parameteres[1], filter_parameteres[2], mode="constant")
     data_filtered = data_filtered * (data[np.argmax(data)]-data[np.argmin(data)]) / (data_filtered[np.argmax(data_filtered)]-data_filtered[np.argmin(data_filtered)])
     subplots[0].clear()
     subplots[0].plot(t, data, "b", t, data_filtered, "r")
+    
+
+    freq = np.fft.fftfreq(n=num_of_samples, d=sample_period)
+    spectrum = np.fft.fft(data, axis=0)  # takes FFT of all channels
+    spectrum_filtered = np.fft.fft(data_filtered, axis=0)  # takes FFT of all channels
+    
+    #Fixes frequency axis
+    freq = np.fft.fftshift(freq) * 60
+    spectrum = np.fft.fftshift(spectrum)
+    spectrum_filtered = np.fft.fftshift(spectrum_filtered)
+
+    spectrum_filtered = spectrum_filtered * spectrum[np.argmax(np.abs(spectrum_filtered))] / spectrum_filtered[np.argmax(np.abs(spectrum_filtered))]
+    subplots[1].clear()
+    subplots[1].set_xscale("log")
+    subplots[1].plot(freq, np.abs(spectrum), "b", freq, np.abs(spectrum_filtered), "r")
+
     plots[0].canvas.draw() #redraw the figure
 
 plots = list()
 subplots = list()
 sliders = list()
+wins = list()
 
 t = []
 data = []
 data_filtered = []
+
+
 
 for i in range(1):
     i=1
@@ -74,7 +103,7 @@ for i in range(1):
     sample_frequency = 40 # [Hz]
     sample_period = 1 / sample_frequency # [s]
 
-    data = getData("Optics/Tests/Test6/result.txt", i)
+    data = getData("Optics/Tests/Test5/result.txt", i)
 
     # Trims test
     data = data[40:]
@@ -82,7 +111,7 @@ for i in range(1):
     # Generate time axis
     num_of_samples = data.shape[0]  # returns shape of matrix
     data = signal.detrend(data)
-    data_filtered = signal.savgol_filter(data, 71, 3, 3, mode="constant")
+    data_filtered = signal.savgol_filter(data, filter_parameteres[0], filter_parameteres[1], filter_parameteres[2], mode="constant")
     t = np.linspace(start=0, stop=num_of_samples*sample_period, num=num_of_samples)
 
     # Generate frequency axis and take FFT
@@ -128,15 +157,23 @@ for i in range(1):
     plt.subplots_adjust(bottom=0.25)
 
     sliders.append(plt.axes([0.25, 0.1, 0.65, 0.03])) #xposition, yposition, width and height
+    wins.append(Slider(sliders[-1], 'Window size', valmin=1, valmax=199, valinit=1, valstep=2))
 
-    # Properties of the slider
-    win_size = Slider(sliders[-1], 'Window size', valmin=5, valmax=99, valinit=99, valstep=2)
+    sliders.append(plt.axes([0.25, 0.15, 0.65, 0.03])) #xposition, yposition, width and height
+    wins.append(Slider(sliders[-1], 'polyorder', valmin=0, valmax=11, valinit=0, valstep=1))
+
+    sliders.append(plt.axes([0.25, 0.20, 0.65, 0.03])) #xposition, yposition, width and height
+    wins.append(Slider(sliders[-1], 'derivorder', valmin=0, valmax=11, valinit=0, valstep=1))
+    
+    
+    
 
 
     ##########################################################################################
 
     
+for i in wins:
+    i.on_changed(update)
 
-win_size.on_changed(update)
 plt.show()
 pylab.show()
