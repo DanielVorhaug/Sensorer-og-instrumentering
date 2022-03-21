@@ -23,15 +23,20 @@ def getData(filepath, color = 0): #Gets the data of color with given index from 
 
     return(sat)
 
-def find_pulse_autocorrelation(Ts, filepath):
+def find_pulse_autocorrelation(Ts, filepath): #Finds the pulse using autocorrelation (duh)
     pulse = []
+    #max_bpm = 300
+    max_hz = 5 #max_hz = max_bpm/60
+    min_delay = 1/max_hz
+    min_lags = math.floor(min_delay/Ts)
 
     for i in range(3): #Goes through and does it for all colors
         color_values = getData(filepath, i) #Gets data for the color
+        color_values = signal.detrend(color_values)
 
         auto_corr = np.correlate(color_values, color_values, "full") #Calculates the autocorrelation
-        auto_corr = np.delete(auto_corr,auto_corr.shape[0]//2 + 1)
-        lags = np.argmax(auto_corr) - auto_corr.shape[0]//2 #Gives the delay as a number of lags from center (which is lag = 0)
+        auto_corr = auto_corr[auto_corr.shape[0]//2 + min_lags + 1:] #Removes negative delays and delays that would result in a too high frequency
+        lags = np.argmax(auto_corr) + min_lags#Gives the delay as a number of lags from previous center (which is lag = 0)
         time_delay = Ts*lags
         pulse.append(60/time_delay) #60 * freq[hz] = freq[bpm]
 
