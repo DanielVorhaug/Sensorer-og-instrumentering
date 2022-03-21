@@ -17,11 +17,24 @@ def getData(filepath, color = 0): #Gets the data of color with given index from 
         sat.append(values[color])
 
     sat = np.ndarray.astype(np.array(sat), np.float32) #Makes the array into a numpy array of ints
-    print(sat)
 
     f.close()
 
     return(sat)
+
+def find_pulse_autocorrelation(Ts, filepath):
+    pulse = []
+
+    for i in range(3): #Goes through and does it for all colors
+        color_values = getData(filepath, i) #Gets data for the color
+
+        auto_corr = np.correlate(color_values, color_values, "full") #Calculates the autocorrelation
+        auto_corr = np.delete(auto_corr,auto_corr.shape[0]//2 + 1)
+        lags = np.argmax(auto_corr) - auto_corr.shape[0]//2 #Gives the delay as a number of lags from center (which is lag = 0)
+        time_delay = Ts*lags
+        pulse.append(60/time_delay) #60 * freq[hz] = freq[bpm]
+
+    return(pulse)
 
 def find_pulse(Ts,freq, spectrum):
     # limit_hz = 40/60 
