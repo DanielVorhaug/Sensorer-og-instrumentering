@@ -1,10 +1,7 @@
-from random import sample
 import pylab
 from re import T
-from turtle import shape
 import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib.widgets import Slider, Button
 import scipy.signal as signal
 import math
 
@@ -74,6 +71,7 @@ filter_parameteres = [71,4,4] #window_length, polyorder and derivorder
 plots = list()
 subplots = list()
 
+
 for i in range(3):
     plots.append(plt.figure())
     sample_frequency = 40 # [Hz]
@@ -82,7 +80,7 @@ for i in range(3):
     data = getData("Optics/Tests/Test6/result.txt", i)
 
     # Trims test
-    data = data[40:]
+    data = data[200:]
 
     # Generate time axis
     num_of_samples = data.shape[0]  # returns shape of matrix
@@ -105,28 +103,45 @@ for i in range(3):
     # spectrum_filtered[-limit_sample:] = 0
     # spectrum_filtered[:limit_sample] = 0
 
-    print(f"Channel {i} says the pulse is: {find_pulse(sample_period, freq, spectrum)*60:.3f}bpm")
+    print(f"Channel {i} says the pulse is: {find_pulse(sample_period, freq, spectrum)*60:.3f}bpm using FFT")
 
     #Fixes frequency axis
     freq = np.fft.fftshift(freq) * 60
     spectrum = np.fft.fftshift(spectrum)
     spectrum_filtered = np.fft.fftshift(spectrum_filtered)
+
+
+    #Find pulse using autocorrelation
+    max_hz = 5 #max_hz = max_bpm/60
+    min_delay = 1/max_hz
+    min_lags = math.floor(min_delay/sample_period)
     
+    auto_corr = np.correlate(data, data, "full") #Calculates the autocorrelation
+    auto_corr_filtered = np.correlate(data_filtered, data_filtered, "full") #Calculates the autocorrelation
     
+    t_autocorr = np.linspace(start=-num_of_samples*sample_period-1/2, stop=num_of_samples*sample_period+1/2, num=2*num_of_samples-1)
+
+    auto_corr_trimmed = auto_corr_filtered[auto_corr_filtered.shape[0]//2 + min_lags + 1:] #Removes negative delays and delays that would result in a too high frequency
+    lags = np.argmax(auto_corr_trimmed) + min_lags#Gives the delay as a number of lags from previous center (which is lag = 0)
+    time_delay = sample_period*lags
+
+    print(f"Channel {i} says the pulse is: {(60/time_delay):.3f}bpm using autocorrelation")
+
+    
+    # Normalize
     data_filtered = data_filtered * (data[np.argmax(data)]-data[np.argmin(data)]) / (data_filtered[np.argmax(data_filtered)]-data_filtered[np.argmin(data_filtered)])
     spectrum_filtered = spectrum_filtered * spectrum[np.argmax(np.abs(spectrum_filtered))] / spectrum_filtered[np.argmax(np.abs(spectrum_filtered))]
-    
+    auto_corr_filtered = auto_corr_filtered*auto_corr[auto_corr.shape[0]//2]/auto_corr_filtered[auto_corr_filtered.shape[0]//2]
 
 
-    subplots.append(plots[-1].add_subplot(2, 1, 1))
+    subplots.append(plots[-1].add_subplot(3, 1, 1))
     subplots[-1].plot(t, data, "b", t, data_filtered, "r")
-    #subplots[-1].set_xscale("log")
     subplots[-1].set_ylabel("Amplitude")
     subplots[-1].set_xlabel("Frekvens [Hz]")
     subplots[-1].legend(['Unfiltered', 'Filtered'])
 
 
-    subplots.append(plots[-1].add_subplot(2, 1, 2))
+    subplots.append(plots[-1].add_subplot(3, 1, 2))
     subplots[-1].plot(freq, np.abs(spectrum), "b", freq, np.abs(spectrum_filtered), "r")
     subplots[-1].set_xscale("log")
     subplots[-1].set_ylabel("Amplitude")
@@ -135,14 +150,11 @@ for i in range(3):
     subplots[-1].grid()
 
 
-    
-    
-    
-
-
-    ##########################################################################################
-
-    
+    subplots.append(plots[-1].add_subplot(3, 1, 3))
+    subplots[-1].plot(t_autocorr, auto_corr, "b", t_autocorr, auto_corr_filtered, "r")
+    subplots[-1].set_ylabel("Amplitude")
+    subplots[-1].set_xlabel("Frekvens [Hz]")
+    subplots[-1].legend(['Unfiltered', 'Filtered'])    
 
 
 plt.show()
