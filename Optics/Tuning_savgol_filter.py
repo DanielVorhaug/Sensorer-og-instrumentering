@@ -68,6 +68,7 @@ def update_figure(filter_parameteres):
     data_filtered = data_filtered * (data[np.argmax(data)]-data[np.argmin(data)]) / (data_filtered[np.argmax(data_filtered)]-data_filtered[np.argmin(data_filtered)])
     subplots[0].clear()
     subplots[0].plot(t, data, "b", t, data_filtered, "r")
+    subplots[0].legend(['Unfiltered', 'Filtered'])
     
 
     freq = np.fft.fftfreq(n=num_of_samples, d=sample_period)
@@ -83,6 +84,7 @@ def update_figure(filter_parameteres):
     subplots[1].clear()
     subplots[1].set_xscale("log")
     subplots[1].plot(freq, np.abs(spectrum), "b", freq, np.abs(spectrum_filtered), "r")
+    subplots[1].legend(['Unfiltered', 'Filtered'])
 
     plots[0].canvas.draw() #redraw the figure
 
@@ -146,6 +148,7 @@ for i in range(1):
     #subplots[-1].set_xscale("log")
     subplots[-1].set_ylabel("Amplitude")
     subplots[-1].set_xlabel("Frekvens [Hz]")
+    subplots[-1].legend(['Unfiltered', 'Filtered'])
 
 
     subplots.append(plots[-1].add_subplot(2, 1, 2))
@@ -153,6 +156,7 @@ for i in range(1):
     subplots[-1].set_xscale("log")
     subplots[-1].set_ylabel("Amplitude")
     subplots[-1].set_xlabel("Puls [bpm]")
+    subplots[-1].legend(['Unfiltered', 'Filtered'])
     subplots[-1].grid()
     plt.subplots_adjust(bottom=0.25)
 
