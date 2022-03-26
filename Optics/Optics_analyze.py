@@ -23,6 +23,23 @@ def getData(filepath, color = 0): #Gets the data of color with given index from 
 
     return(sat)
 
+def plot_resolutions(Ts):
+    t_corr = np.linspace(0.2, 2, int((2-0.2)*40))
+    heartrate = 60/t_corr #60 divided by as we want bpm not bps/Hz
+    res_corr =  60/(t_corr[1:] - 0.04) - 60/t_corr[1:] #Do not use the first value of t_corr as that would give a division by zero
+    res_fft = np.full(heartrate.shape[0], Ts/20) #Ts/20 is resolution of fft as the resolution in Hz is Ts/FFT_size = Ts/120 which gives a resolution in bpm of Ts/20. 120 comes from the fact that we film at 40fps for 30s
+
+    plt.step(heartrate[1:], res_corr, "r", label="Autocorrelation")
+    plt.plot(heartrate, res_fft, "g", label="FFT")
+    plt.grid()
+    plt.xlabel("Heartrate[bpm]")
+    plt.ylabel("Resolution[bpm]")
+    plt.title("Resolution of autocorrelation and FFT for finding heartrate")
+    plt.legend()
+    plt.show()
+
+    return()
+
 def find_pulse_autocorrelation(Ts, filepath): #Finds the pulse using autocorrelation (duh)
     pulse = []
     #max_bpm = 300
@@ -114,7 +131,8 @@ for i in range(1):
     data_filtered = signal.savgol_filter(data, filter_parameteres[0], filter_parameteres[1], filter_parameteres[2], mode="constant")
     t = np.linspace(start=0, stop=num_of_samples*sample_period, num=num_of_samples)
 
-    # Generate frequency axis and take FFT
+
+    #Generate frequency axis and take FFT
     freq = np.fft.fftfreq(n=num_of_samples, d=sample_period)
     spectrum = np.fft.fft(data, axis=0)  # takes FFT of all channels
     spectrum_filtered = np.fft.fft(data_filtered, axis=0)  # takes FFT of all channels
