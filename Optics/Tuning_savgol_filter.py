@@ -23,23 +23,6 @@ def getData(filepath, color = 0): #Gets the data of color with given index from 
 
     return(sat)
 
-def plot_resolutions(Ts):
-    t_corr = np.linspace(0.2, 2, int((2-0.2)*40))
-    heartrate = 60/t_corr #60 divided by as we want bpm not bps/Hz
-    res_corr =  60/(t_corr[1:] - 0.04) - 60/t_corr[1:] #Do not use the first value of t_corr as that would give a division by zero
-    res_fft = np.full(heartrate.shape[0], Ts/20) #Ts/20 is resolution of fft as the resolution in Hz is Ts/FFT_size = Ts/120 which gives a resolution in bpm of Ts/20. 120 comes from the fact that we film at 40fps for 30s
-
-    plt.step(heartrate[1:], res_corr, "r", label="Autocorrelation")
-    plt.plot(heartrate, res_fft, "g", label="FFT")
-    plt.grid()
-    plt.xlabel("Heartrate[bpm]")
-    plt.ylabel("Resolution[bpm]")
-    plt.title("Resolution of autocorrelation and FFT for finding heartrate")
-    plt.legend()
-    plt.show()
-
-    return()
-
 def find_pulse_autocorrelation(Ts, filepath): #Finds the pulse using autocorrelation (duh)
     pulse = []
     #max_bpm = 300
@@ -71,15 +54,58 @@ def find_pulse(Ts,freq, spectrum):
 
 filter_parameteres = [71,4,4] #window_length, polyorder and derivorder
 
+def update(val):
+    parameters = list()
+    for i in wins:
+        parameters.append(i.val)
+    filter_parameteres = parameters
+#    window_length = int(wins[0].val)
+    update_figure(filter_parameteres)
+   
+
+def update_figure(filter_parameteres):
+    data_filtered = signal.savgol_filter(data, filter_parameteres[0], filter_parameteres[1], filter_parameteres[2], mode="constant")
+    data_filtered = data_filtered * (data[np.argmax(data)]-data[np.argmin(data)]) / (data_filtered[np.argmax(data_filtered)]-data_filtered[np.argmin(data_filtered)])
+    subplots[0].clear()
+    subplots[0].plot(t, data, "b", t, data_filtered, "r")
+    subplots[0].legend(['Unfiltered', 'Filtered'])
+    
+
+    freq = np.fft.fftfreq(n=num_of_samples, d=sample_period)
+    spectrum = np.fft.fft(data, axis=0)  # takes FFT of all channels
+    spectrum_filtered = np.fft.fft(data_filtered, axis=0)  # takes FFT of all channels
+    
+    #Fixes frequency axis
+    freq = np.fft.fftshift(freq) * 60
+    spectrum = np.fft.fftshift(spectrum)
+    spectrum_filtered = np.fft.fftshift(spectrum_filtered)
+
+    spectrum_filtered = spectrum_filtered * spectrum[np.argmax(np.abs(spectrum_filtered))] / spectrum_filtered[np.argmax(np.abs(spectrum_filtered))]
+    subplots[1].clear()
+    subplots[1].set_xscale("log")
+    subplots[1].plot(freq, np.abs(spectrum), "b", freq, np.abs(spectrum_filtered), "r")
+    subplots[1].legend(['Unfiltered', 'Filtered'])
+
+    plots[0].canvas.draw() #redraw the figure
+
 plots = list()
 subplots = list()
+sliders = list()
+wins = list()
 
-for i in range(3):
+t = []
+data = []
+data_filtered = []
+
+
+
+for i in range(1):
+    i=1
     plots.append(plt.figure())
     sample_frequency = 40 # [Hz]
     sample_period = 1 / sample_frequency # [s]
 
-    data = getData("Optics/Tests/Test6/result.txt", i)
+    data = getData("Optics/Tests/Test5/result.txt", i)
 
     # Trims test
     data = data[40:]
@@ -90,8 +116,7 @@ for i in range(3):
     data_filtered = signal.savgol_filter(data, filter_parameteres[0], filter_parameteres[1], filter_parameteres[2], mode="constant")
     t = np.linspace(start=0, stop=num_of_samples*sample_period, num=num_of_samples)
 
-
-    #Generate frequency axis and take FFT
+    # Generate frequency axis and take FFT
     freq = np.fft.fftfreq(n=num_of_samples, d=sample_period)
     spectrum = np.fft.fft(data, axis=0)  # takes FFT of all channels
     spectrum_filtered = np.fft.fft(data_filtered, axis=0)  # takes FFT of all channels
@@ -133,8 +158,16 @@ for i in range(3):
     subplots[-1].set_xlabel("Puls [bpm]")
     subplots[-1].legend(['Unfiltered', 'Filtered'])
     subplots[-1].grid()
+    plt.subplots_adjust(bottom=0.25)
 
+    sliders.append(plt.axes([0.25, 0.1, 0.65, 0.03])) #xposition, yposition, width and height
+    wins.append(Slider(sliders[-1], 'Window size', valmin=1, valmax=199, valinit=71, valstep=2))
 
+    sliders.append(plt.axes([0.25, 0.15, 0.65, 0.03])) #xposition, yposition, width and height
+    wins.append(Slider(sliders[-1], 'polyorder', valmin=0, valmax=11, valinit=4, valstep=1))
+
+    sliders.append(plt.axes([0.25, 0.20, 0.65, 0.03])) #xposition, yposition, width and height
+    wins.append(Slider(sliders[-1], 'derivorder', valmin=0, valmax=11, valinit=4, valstep=1))
     
     
     
@@ -143,7 +176,8 @@ for i in range(3):
     ##########################################################################################
 
     
-
+for i in wins:
+    i.on_changed(update)
 
 plt.show()
 pylab.show()
