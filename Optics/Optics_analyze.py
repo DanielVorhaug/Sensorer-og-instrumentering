@@ -57,14 +57,46 @@ def find_pulse_autocorrelation(Ts, filepath): #Finds the pulse using autocorrela
     return(pulse)
 
 def find_pulse(Ts,freq, spectrum):
-    limit_hz = 30/60 
+    limit_hz = 40/60 #40 bpm omregnet til hz
     limit_sample = math.ceil(limit_hz * spectrum.shape[0] * Ts)
 
-    peak = limit_sample + np.argmax(np.abs(spectrum[limit_sample:-limit_sample]))
+    peak = limit_sample + np.argmax(np.abs(spectrum[limit_sample:spectrum.shape[0]//2]))
     #peak = np.argmax(np.abs(spectrum))
-    fd = abs(freq[peak])
+    fd = abs(freq[peak]) * 60 #find the pulse and convert from Hz to bpm
 
     return(fd)
+
+def calc_SNR_peaks(Ts, spectrum):
+    upper_limit_hz = 225/60 #225 bpm omregnet til hz. 225 ble valgt siden det er en dødelig høy puls
+    upper_limit_sample = math.ceil(upper_limit_hz * spectrum.shape[0] * Ts)
+    lower_limit_hz = 40/60 #40 bpm omregnet til hz
+    lower_limit_sample = math.ceil(lower_limit_hz * spectrum.shape[0] * Ts)
+    
+    spectrum = spectrum[lower_limit_sample:upper_limit_sample]
+    sig_peak_index = np.argmax(np.abs(spectrum)) #Finner indexen til signaltopp for frekvenser over limit_hz
+
+    signal_width = 10
+    spectrum_sig_peak_removed = np.delete(spectrum, np.arange(sig_peak_index-signal_width, sig_peak_index+signal_width))
+    noise_peak = np.max(np.abs(spectrum_sig_peak_removed)) #Finner verdien til støytoppen
+    
+    SNR = 20*np.log10(np.abs(spectrum[sig_peak_index]/noise_peak))
+    return(SNR)
+
+def calc_SNR_average(Ts, spectrum):
+    upper_limit_hz = 225/60 #225 bpm omregnet til hz. 225 ble valgt siden det er en dødelig høy puls
+    upper_limit_sample = math.ceil(upper_limit_hz * spectrum.shape[0] * Ts)
+    lower_limit_hz = 40/60 #40 bpm omregnet til hz
+    lower_limit_sample = math.ceil(lower_limit_hz * spectrum.shape[0] * Ts)
+
+    spectrum = spectrum[lower_limit_sample:upper_limit_sample]
+    
+    sig_peak_index = np.argmax(np.abs(spectrum)) #Finner indexen til signaltopp for frekvenser over limit_hz
+
+    signal_width = 10
+    spectrum_sig_peak_removed = np.delete(spectrum, np.arange(sig_peak_index-signal_width, sig_peak_index+signal_width))        
+    
+    SNR = 20*np.log10(np.abs(spectrum[sig_peak_index]/np.average(spectrum_sig_peak_removed)))
+    return(SNR)
 
 filter_parameteres = [71,4,4] #window_length, polyorder and derivorder
 
@@ -77,7 +109,7 @@ for i in range(3):
     sample_frequency = 40 # [Hz]
     sample_period = 1 / sample_frequency # [s]
 
-    data = getData("Optics/Tests/Test23/result.txt", i)
+    data = getData("Optics/Tests/Test40/result.txt", i)
 
     # Trims test
     data = data[100:-100]
@@ -95,7 +127,7 @@ for i in range(3):
     spectrum_filtered = np.fft.fft(data_filtered, axis=0)  # takes FFT of all channels
 
     # Filter low frequencies
-    limit_hz = 30/60
+    limit_hz = 40/60
     limit_sample = math.ceil(limit_hz * spectrum.shape[0] * sample_period)
     # spectrum[-limit_sample:] = 0
     # spectrum[:limit_sample] = 0
@@ -103,30 +135,34 @@ for i in range(3):
     # spectrum_filtered[-limit_sample:] = 0
     # spectrum_filtered[:limit_sample] = 0
 
-    print(f"Channel {i} says the pulse is: {find_pulse(sample_period, freq, spectrum)*60:.3f}bpm using FFT")
+    
 
-    #Fixes frequency axis
-    freq = np.fft.fftshift(freq) * 60
-    spectrum = np.fft.fftshift(spectrum)
-    spectrum_filtered = np.fft.fftshift(spectrum_filtered)
+    
 
 
-    #Find pulse using autocorrelation
-    max_hz = 5 #max_hz = max_bpm/60
-    min_delay = 1/max_hz
+   #Find pulse using autocorrelation
+    max_hz = 3.75 #max_hz = max_bpm/60, max_bpm = 225
+    min_delay = 1/max_hz #minimum delay would be the inverse of the highest frequency possible
     min_lags = math.floor(min_delay/sample_period)
+
+    max_delay = 1/limit_hz
+    max_lags = math.floor(max_delay/sample_period)
+    
     
     auto_corr = np.correlate(data, data, "full") #Calculates the autocorrelation
     auto_corr_filtered = np.correlate(data_filtered, data_filtered, "full") #Calculates the autocorrelation
     
     t_autocorr = np.linspace(start=-num_of_samples*sample_period, stop=num_of_samples*sample_period, num=2*num_of_samples-1)
 
-    auto_corr_trimmed = auto_corr_filtered[auto_corr_filtered.shape[0]//2 + min_lags + 1:] #Removes negative delays and delays that would result in a too high frequency
+    auto_corr_trimmed = auto_corr_filtered[auto_corr_filtered.shape[0]//2 + min_lags + 1:auto_corr_filtered.shape[0]//2 + max_lags + 1] #Removes negative delays and delays that would result in a too high frequency
     lags = np.argmax(auto_corr_trimmed) + min_lags + 1#Gives the delay as a number of lags from previous center (which is lag = 0)
     time_delay = sample_period*lags
+    print(f"Channel {i}: \tpulse (FFT): {find_pulse(sample_period, freq, spectrum_filtered):.1f} \tpulse (autocorr): {(60/time_delay):.1f} \t\tSNR (average noise): {calc_SNR_average(sample_period, spectrum_filtered):.1f}dB\tSNR (peak noise): {calc_SNR_peaks(sample_period, spectrum_filtered):.1f}dB")
 
-    print(f"Channel {i} says the pulse is: {(60/time_delay):.3f}bpm using autocorrelation")
-
+    #Fixes frequency axis
+    freq = np.fft.fftshift(freq) * 60
+    spectrum = np.fft.fftshift(spectrum)
+    spectrum_filtered = np.fft.fftshift(spectrum_filtered)
     
     # Normalize
     data_filtered = data_filtered * (data[np.argmax(data)]-data[np.argmin(data)]) / (data_filtered[np.argmax(data_filtered)]-data_filtered[np.argmin(data_filtered)])
@@ -142,7 +178,7 @@ for i in range(3):
 
 
     subplots.append(plots[-1].add_subplot(3, 1, 2))
-    subplots[-1].plot(freq, np.abs(spectrum), "b", freq, np.abs(spectrum_filtered), "r")
+    subplots[-1].plot(freq, 20*np.log10(np.abs(spectrum)), "b", freq, 20*np.log10(np.abs(spectrum_filtered)), ".r")
     subplots[-1].set_xscale("log")
     subplots[-1].set_ylabel("Amplitude")
     subplots[-1].set_xlabel("Puls [bpm]")
