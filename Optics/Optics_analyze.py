@@ -24,7 +24,7 @@ def plot_resolutions(Ts):
     t_corr = np.linspace(0.2, 2, int((2-0.2)*40))
     heartrate = 60/t_corr #60 divided by as we want bpm not bps/Hz
     res_corr =  60/(t_corr[1:] - 0.04) - 60/t_corr[1:] #Do not use the first value of t_corr as that would give a division by zero
-    res_fft = np.full(heartrate.shape[0], Ts/20) #Ts/20 is resolution of fft as the resolution in Hz is Ts/FFT_size = Ts/120 which gives a resolution in bpm of Ts/20. 120 comes from the fact that we film at 40fps for 30s
+    res_fft = np.full(heartrate.shape[0], Ts/200) #Ts/200 is resolution of fft as the resolution in Hz is Ts/FFT_size = Ts/1200 which gives a resolution in bpm of Ts/200. 1200 comes from the fact that we film at 40fps for 30s
 
     plt.step(heartrate[1:], res_corr, "r", label="Autocorrelation")
     plt.plot(heartrate, res_fft, "g", label="FFT")
