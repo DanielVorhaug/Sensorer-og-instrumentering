@@ -62,7 +62,7 @@ def find_pulse(Ts,freq, spectrum):
 
     peak = limit_sample + np.argmax(np.abs(spectrum[limit_sample:-limit_sample]))
     #peak = np.argmax(np.abs(spectrum))
-    fd = freq[peak]
+    fd = abs(freq[peak])
 
     return(fd)
 
@@ -77,10 +77,10 @@ for i in range(3):
     sample_frequency = 40 # [Hz]
     sample_period = 1 / sample_frequency # [s]
 
-    data = getData("Optics/Tests/Test6/result.txt", i)
+    data = getData("Optics/Tests/Test23/result.txt", i)
 
     # Trims test
-    data = data[200:]
+    data = data[100:-100]
 
     # Generate time axis
     num_of_samples = data.shape[0]  # returns shape of matrix
@@ -119,10 +119,10 @@ for i in range(3):
     auto_corr = np.correlate(data, data, "full") #Calculates the autocorrelation
     auto_corr_filtered = np.correlate(data_filtered, data_filtered, "full") #Calculates the autocorrelation
     
-    t_autocorr = np.linspace(start=-num_of_samples*sample_period-1/2, stop=num_of_samples*sample_period+1/2, num=2*num_of_samples-1)
+    t_autocorr = np.linspace(start=-num_of_samples*sample_period, stop=num_of_samples*sample_period, num=2*num_of_samples-1)
 
     auto_corr_trimmed = auto_corr_filtered[auto_corr_filtered.shape[0]//2 + min_lags + 1:] #Removes negative delays and delays that would result in a too high frequency
-    lags = np.argmax(auto_corr_trimmed) + min_lags#Gives the delay as a number of lags from previous center (which is lag = 0)
+    lags = np.argmax(auto_corr_trimmed) + min_lags + 1#Gives the delay as a number of lags from previous center (which is lag = 0)
     time_delay = sample_period*lags
 
     print(f"Channel {i} says the pulse is: {(60/time_delay):.3f}bpm using autocorrelation")
@@ -153,7 +153,7 @@ for i in range(3):
     subplots.append(plots[-1].add_subplot(3, 1, 3))
     subplots[-1].plot(t_autocorr, auto_corr, "b", t_autocorr, auto_corr_filtered, "r")
     subplots[-1].set_ylabel("Amplitude")
-    subplots[-1].set_xlabel("Frekvens [Hz]")
+    subplots[-1].set_xlabel("Autokorrelasjon [s]")
     subplots[-1].legend(['Unfiltered', 'Filtered'])    
 
 
