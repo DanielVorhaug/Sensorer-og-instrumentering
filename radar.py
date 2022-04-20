@@ -138,20 +138,13 @@ def calc_speed(sig, Ts,  I_channel = 0, Q_channel = 1):
 
     return(v)
 
-def calc_var(groupNr, resultNr, I_channel=0, Q_channel=1):
-    speeds = []
-    for i in range(resultNr):
-        f = "Radar_test_gjennomgang/" + str(groupNr) + str(i) + ".bin"
-        sample_period, data_raw = raspi_import(f)
-        data = data_raw[10:, 0:2] #removes data from ADCs not in use (Requires that I and Q use ADC 0 and 1)
-        data = signal.detrend(data, axis=0)  #removes DC component for each channel (should not matter as we have a filter)
-        sample_period *= 1e-6  # change unit to micro seconds
-
-        speeds.append(calc_speed(data, sample_period, I_channel, Q_channel))
-        
-    print(speeds)
-    variance = np.var(speeds)
-    return(variance)
+def calc_est_error_var(I_channel=0, Q_channel=1):
+    speeds = calc_est_error(I_channel, Q_channel)
+    vars = []
+    for sub_array in speeds:
+        vars.append(np.var(sub_array))
+    vars = np.array(vars)
+    return(vars)
 
 def plot_some_results(I_channel = 0, Q_channel = 1):
     for i in range(6): #6 is the number of different speeds we tested at
@@ -201,13 +194,13 @@ def calc_est_error(I_channel = 0, Q_channel = 1):
             sample_period *= 1e-6  # change unit to micro seconds
 
             value = sub_array[j]
-            estimated_value = calc_speed(data, sample_period, I_channel, Q_channel)
-            print(value)
-            print(estimated_value)
+            estimated_value = calc_speed(data, sample_period, I_channel, 
+            Q_channel)
+            print("theory %.3f, measured %.3f" %(value, estimated_value))
             group_speeds.append(value - estimated_value) #Appends the estimation error of the current value
         speeds.append(group_speeds)
         i += 1
-
+    speeds = np.array(speeds)
     return(speeds)
 
 
