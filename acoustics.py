@@ -39,7 +39,7 @@ def find_lags(n12, n23, n13, N_interp):
     n13 = n13[len(n13)//2-maxLags: len(n13)//2+maxLags+1]
 
     # Finds index of maximum value and translates it into lag in samples
-    print(str(-np.argmax(n12)+maxLags) + " " + str(-np.argmax(n23)+maxLags) + " " + str(-np.argmax(n13)+maxLags))
+    print(f"n12: {-np.argmax(n12)+maxLags}, n23: {-np.argmax(n23)+maxLags}, n13: {-np.argmax(n13)+maxLags}")
     l12 = -(np.argmax(n12) - maxLags)
     l23 = -(np.argmax(n23) - maxLags)
     l13 = -(np.argmax(n13) - maxLags)

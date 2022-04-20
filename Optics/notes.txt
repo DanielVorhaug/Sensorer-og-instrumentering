@@ -1,0 +1,10 @@
+Test06: Should be 58bpm
+Test07-12: Pulse was 65bpm before starting, 67bpm after.
+
+Test09 has a bug in red channel. And a lot needs to be trimmed. Should discard.
+
+Test15->: Testing reflectance. 64 bpm after.
+
+Test25->: Testing med ambient lys også. 60bpm.
+
+Test35->: Testing with cold fingers. 55bpm before, 65 afterwards.
