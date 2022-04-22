@@ -102,14 +102,14 @@ filter_parameteres = [71,4,4] #window_length, polyorder and derivorder
 
 plots = list()
 subplots = list()
-
+cs = ['Red', 'Green', 'Blue']
 
 for i in range(3):
     plots.append(plt.figure())
     sample_frequency = 40 # [Hz]
     sample_period = 1 / sample_frequency # [s]
 
-    data = getData("Optics/Tests/Test40/result.txt", i)
+    data = getData("Lab_4-Optics/Tests/Test29/result.txt", i)
 
     # Trims test
     data = data[100:-100]
@@ -176,6 +176,7 @@ for i in range(3):
     subplots[-1].plot(t, data, "b", t, data_filtered, "r")
     subplots[-1].set_ylabel("Amplitude")
     subplots[-1].set_xlabel("Frekvens [Hz]")
+    subplots[-1].set_title("Measurments from the " + cs[i] + " channel")
     subplots[-1].legend(['Unfiltered', 'Filtered'])
 
 
