@@ -109,7 +109,7 @@ for j in range(ending_index - starting_index + 1):
         if len(index_string) == 1:
             index_string= "0" + index_string
 
-        data = getData("Optics/Tests/Test" + index_string + "/result.txt", i)
+        data = getData("Lab_4-Optics/Tests/Test" + index_string + "/result.txt", i)
 
         # Trims test
         data = data[100:-100]
