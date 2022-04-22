@@ -46,6 +46,12 @@ def pen_depth(wavelength, bvf = 0.01, mua_other = 25):
     delta = math.sqrt( 1 / (3 * (musr + mua) * mua) )
     return delta
 
+def reflectance_estimate(wavelength, bvf = 0.01, mua_other = 25):
+    mua, musr = constants(wavelength, bvf, mua_other)
+
+    rR = math.sqrt( 3 * ((musr / mua) + 1 ) )
+    return rR
+
 def light_flux_at_depth(depth, wavelength, bvf = 0.01, mua_other = 25):
     delta = pen_depth(wavelength, bvf, mua_other)
 
@@ -86,6 +92,11 @@ print(f"Flux remaining at other side of Daniel's finger, green light:\t{light_fl
 print()
 print(f"Flux remaining at other side of Carl's finger, blue light:\t{light_flux_at_depth(finger_thickness_Carl, blue_wavelength) * 1000:.5f}‰")
 print(f"Flux remaining at other side of Daniel's finger, blue light:\t{light_flux_at_depth(finger_thickness_Daniel, blue_wavelength) * 1000:.5f}‰")
+print("\n\n")
+
+print(f"Reflectance estimate for red waves:\t{reflectance_estimate(red_wavelength):.3f}")
+print(f"Reflectance estimate for green waves:\t{reflectance_estimate(green_wavelength):.3f}")
+print(f"Reflectance estimate for blue waves:\t{reflectance_estimate(blue_wavelength):.3f}")
 print("\n\n")
 
 print(f"Probed depth for red waves:\t{probed_depth(red_wavelength, red_wavelength_reflectance) * 1000:.3f}mm")
