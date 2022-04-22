@@ -157,7 +157,9 @@ for i in range(3):
     auto_corr_trimmed = auto_corr_filtered[auto_corr_filtered.shape[0]//2 + min_lags + 1:auto_corr_filtered.shape[0]//2 + max_lags + 1] #Removes negative delays and delays that would result in a too high frequency
     lags = np.argmax(auto_corr_trimmed) + min_lags + 1#Gives the delay as a number of lags from previous center (which is lag = 0)
     time_delay = sample_period*lags
-    print(f"Channel {i}: \tpulse (FFT): {find_pulse(sample_period, freq, spectrum_filtered):.1f} \tpulse (autocorr): {(60/time_delay):.1f} \t\tSNR (average noise): {calc_SNR_average(sample_period, spectrum_filtered):.1f}dB\tSNR (peak noise): {calc_SNR_peaks(sample_period, spectrum_filtered):.1f}dB")
+    bpm_from_autocorrelation = 60/time_delay
+
+    print(f"Channel {i}: \tpulse (FFT): {find_pulse(sample_period, freq, spectrum_filtered):.1f} \tpulse (autocorr): {(bpm_from_autocorrelation):.1f} \t\tSNR (average noise): {calc_SNR_average(sample_period, spectrum_filtered):.1f}dB\tSNR (peak noise): {calc_SNR_peaks(sample_period, spectrum_filtered):.1f}dB")
 
     #Fixes frequency axis
     freq = np.fft.fftshift(freq) * 60
