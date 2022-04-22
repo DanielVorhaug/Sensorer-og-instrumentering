@@ -31,61 +31,63 @@ def interpolate(sample_period, data, factor):
     new_sample_period = sample_period / factor
     return new_data, new_sample_period
 
+def generate_FFTs(data, detrended_data):
+    # Generate frequency axis and take FFT
+    detrended_spectrum = np.fft.fft(detrended_data, axis=0)
+    spectrum = np.fft.fft(data, axis=0)  # takes FFT of all channels
+    return(spectrum, detrended_spectrum)
+
 # Import data from bin file
-sample_period, data_raw = raspi_import('adcData.bin')
-data = data_raw[4000:,:]
+sample_period, data_raw = raspi_import('Lab_1-System/Data/PureBackgroundNoise.bin')
+data = data_raw[5:,:]
+data = data * 0.8 #Scales the digital signal to be values in mV
 
-data = signal.detrend(data, axis=0)  # removes DC component for each channel
+detrended_data = signal.detrend(data, axis=0)  # removes DC component for each channel
+
 sample_period *= 1e-6  # change unit to micro seconds
-
-#Interpolate
-interpolation_factor = 1
-data, sample_period = interpolate(sample_period, data, interpolation_factor)
 
 # Generate time axis
 num_of_samples = data.shape[0]  # returns shape of matrix
 t = np.linspace(start=0, stop=num_of_samples*sample_period, num=num_of_samples)
 
-# Generate frequency axis and take FFT
 freq = np.fft.fftfreq(n=num_of_samples, d=sample_period)
-spectrum = np.fft.fft(data, axis=0)  # takes FFT of all channels
+
+spectrum, detrended_spectrum = generate_FFTs(data/1000, detrended_data/1000)
 
 #Fixes frequency axis from -16kHz to 16kHzz
 freq = np.fft.fftshift(freq)
 spectrum = np.fft.fftshift(spectrum)
+detrended_spectrum = np.fft.fftshift(detrended_spectrum)
 
 
 # Plot the results in two subplots
 # NOTICE: This lazily plots the entire matrixes. All the channels will be put into the same plots.
 # If you want a single channel, use data[:,n] to get channel n
 
-for i in range(1,3):
-    plt.subplot(2, 1, i)
-    plt.title("Time domain signal")
-    plt.xlabel("Time [us]")
-    plt.ylabel("Voltage")
-    plt.plot(t[:], data[:,i-1], ".")    
+plt.subplot(2, 1, 1)
+plt.title("Time domain signal")
+plt.xlabel("Time [us]")
+plt.ylabel("Voltage")
+plt.grid()
+plt.plot(t[:], data[:,0], ".")
+plt.subplot(2, 1, 2)
+plt.title("Time domain detrended signal")
+plt.xlabel("Time [us]")
+plt.ylabel("Voltage [mV]")
+plt.grid()
+plt.plot(t[:], detrended_data[:,0], ".")
 
-# for i in range(1,3):
-#    plt.subplot(2, 1, i)
-#    #plt.title("Power spectrum of signal")
-#    plt.xlabel("Frequency [Hz]")
-#    plt.ylabel("Power [dB]")
-#    plt.plot(freq, 20*np.log10(np.abs(spectrum[:,i-1])))#, ".") # get the power spectrum
-
-# print(freq[: math.ceil(len(freq)/2)])
 # plt.subplot(2, 1, 1)
-# #plt.title("Time domain signal")
-# plt.xlabel("Time [us]")
-# plt.ylabel("Voltage")
-# plt.plot(t, data)
-
-# plt.subplot(2, 1, 2)
-# #plt.title("Power spectrum of signal")
+# plt.title("Power spectrum of signal")
 # plt.xlabel("Frequency [Hz]")
 # plt.ylabel("Power [dB]")
-# plt.plot(freq, 20*np.log10(np.abs(spectrum))) # get the power spectrum
-
-
+# plt.grid()
+# plt.plot(freq, 20*np.log10(np.abs(spectrum[:,0])))#, ".") # get the power spectrum
+# plt.subplot(2, 1, 2)
+# plt.title("Power spectrum of detrended signal")
+# plt.xlabel("Frequency [Hz]")
+# plt.ylabel("Power [dB]")
+# plt.grid()
+# plt.plot(freq, 20*np.log10(np.abs(detrended_spectrum[:,0])))#, ".") # get the power spectrum
 
 plt.show()
