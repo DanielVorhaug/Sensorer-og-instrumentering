@@ -38,7 +38,7 @@ def generate_FFTs(data, detrended_data):
     return(spectrum, detrended_spectrum)
 
 # Import data from bin file
-sample_period, data_raw = raspi_import('Lab_1-System/Data/PureBackgroundNoise.bin')
+sample_period, data_raw = raspi_import('Lab_1-System\Data\\19adcData_ingenting_tilkoblet.bin')
 data = data_raw[5:,:]
 data = data * 0.8 #Scales the digital signal to be values in mV
 
@@ -64,18 +64,36 @@ detrended_spectrum = np.fft.fftshift(detrended_spectrum)
 # NOTICE: This lazily plots the entire matrixes. All the channels will be put into the same plots.
 # If you want a single channel, use data[:,n] to get channel n
 
-plt.subplot(2, 1, 1)
-plt.title("Time domain signal")
-plt.xlabel("Time [us]")
-plt.ylabel("Voltage")
-plt.grid()
-plt.plot(t[:], data[:,0], ".")
-plt.subplot(2, 1, 2)
-plt.title("Time domain detrended signal")
-plt.xlabel("Time [us]")
-plt.ylabel("Voltage [mV]")
-plt.grid()
-plt.plot(t[:], detrended_data[:,0], ".")
+# plt.subplot(2, 1, 1)
+# plt.title("Time domain signal")
+# plt.xlabel("Time [us]")
+# plt.ylabel("Voltage")
+# plt.grid()
+# plt.plot(t[:], data[:,0], ".")
+# plt.subplot(2, 1, 2)
+# plt.title("Time domain detrended signal")
+# plt.xlabel("Time [us]")
+# plt.ylabel("Voltage [mV]")
+# plt.grid()
+# plt.plot(t[:], detrended_data[:,0], ".")
+
+
+for i in range(1,6):
+    plt.subplot(2, 3, i)
+    plt.title("ADC "+str(i))
+
+    # plt.xlabel("Tid [s]")
+    # plt.ylabel("Spenning [mV]")
+    # plt.plot(t[:], detrended_data[:,i-1], "-")#, label=("ADC " + str(i)))
+    # plt.legend(loc='lower right')
+
+    # plt.subplot(5, 1, 2)
+
+    plt.xlabel("Frekvens [Hz]")
+    plt.ylabel("Effekt [dB]")
+    plt.grid()
+    plt.plot(freq, 20*np.log10(np.abs(detrended_spectrum[:,i-1])))#, label=("ADC " + str(i)))#, ".") # get the power spectrum
+    # plt.legend(loc='lower right')
 
 # plt.subplot(2, 1, 1)
 # plt.title("Power spectrum of signal")
