@@ -37,7 +37,9 @@ def constants(wavelength, bvf = 0.01, mua_other = 25):
     # V. V. Tuchin. Optical properties of skin, subcutaneous and muscle
     # tissues: A review. In: J. Innov. Opt. Health Sci., 4(1):9-38, 2011.
     # Units: 1/m
-    musr = 100 * (17.6*(wavelength/500)**-4 + 18.78*(wavelength/500)**-0.22)
+    musr1 = 100 * (17.6*(wavelength/500)**-4 + 18.78*(wavelength/500)**-0.22)
+    musr = 100 * (1.1*(10**12)*(wavelength)**-4 + 73.7*(wavelength)**-0.22)
+    # print(f"Original: {musr1}, from paper: {musr}")
     return mua, musr
 
 def pen_depth(wavelength, bvf = 0.01, mua_other = 25):
