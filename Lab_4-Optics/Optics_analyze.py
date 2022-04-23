@@ -105,6 +105,7 @@ def plot_all_results(t, data, data_filtered, freq, spectrum, spectrum_filtered, 
     subplots[-1].set_xlabel("Tid[s]")
     subplots[-1].set_title("Measurments from the " + cs[i].lower() + " channel")
     subplots[-1].legend(['Unfiltered', 'Filtered'])
+    subplots[-1].grid()
 
 
     subplots.append(plots[-1].add_subplot(3, 1, 2))
@@ -121,15 +122,28 @@ def plot_all_results(t, data, data_filtered, freq, spectrum, spectrum_filtered, 
     subplots[-1].set_ylabel("Amplitude")
     subplots[-1].set_xlabel("Tid[s]")
     subplots[-1].legend(['Unfiltered', 'Filtered'])
+    subplots[-1].grid()
 
 def plot_raw_data(t, data):
     subplots.append(plots[-1].add_subplot(1, 1, 1))
     subplots[-1].plot(t, data, cs[i][0].lower())
-    subplots[-1].set_title("Raw data from " + cs[i].lower())
     subplots[-1].set_ylabel("Amplitude")
     subplots[-1].set_xlabel("Time[s]")
     subplots[-1].grid()
-    return()
+
+def plot_raw_FFT_and_auto(freq, spectrum, t_autocorr, auto_corr):
+    subplots.append(plots[-1].add_subplot(2, 1, 1))
+    subplots[-1].plot(freq, 20*np.log10(np.abs(spectrum)), cs[i].lower())
+    subplots[-1].set_xscale("log")
+    subplots[-1].set_ylabel("Amplitude")
+    subplots[-1].set_xlabel("Puls[bpm]")
+    subplots[-1].grid()
+
+    subplots.append(plots[-1].add_subplot(2, 1, 2))
+    subplots[-1].plot(t_autocorr, auto_corr, cs[i].lower())
+    subplots[-1].set_xlabel("Tid[s]")
+    subplots[-1].set_ylabel("Amplitude")
+    subplots[-1].grid()
 
 def normalize(data, data_filtered, spectrum, spectrum_filtered, auto_corr, auto_corr_filtered):
     # Normalizes filtered results to have same amplitude as the original results
