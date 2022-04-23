@@ -38,6 +38,15 @@ def plot_resolutions(Ts):
     return()
 
 def find_pulse_autocorrelation(auto_corr_filtered): #Finds the pulse using autocorrelation (duh)
+    limit_hz = 30/60
+
+    max_hz = 3.75 #max_hz = max_bpm/60, max_bpm = 225
+    min_delay = 1/max_hz #minimum delay would be the inverse of the highest frequency possible
+    min_lags = math.floor(min_delay/sample_period)
+
+    max_delay = 1/limit_hz
+    max_lags = math.floor(max_delay/sample_period)
+
     auto_corr_trimmed = auto_corr_filtered[auto_corr_filtered.shape[0]//2 + min_lags + 1:auto_corr_filtered.shape[0]//2 + max_lags + 1] #Removes negative delays and delays that would result in a too high frequency
     lags = np.argmax(auto_corr_trimmed) + min_lags + 1#Gives the delay as a number of lags from previous center (which is lag = 0)
     time_delay = sample_period*lags
@@ -172,25 +181,16 @@ for i in range(3):
     spectrum_filtered = np.fft.fft(data_filtered, axis=0)  # takes FFT of all channels
 
     # Filter low frequencies
-    limit_hz = 40/60
+    limit_hz = 30/60
     limit_sample = math.ceil(limit_hz * spectrum.shape[0] * sample_period)
     # spectrum[-limit_sample:] = 0
     # spectrum[:limit_sample] = 0
 
     # spectrum_filtered[-limit_sample:] = 0
-    # spectrum_filtered[:limit_sample] = 0
-
-   #Find pulse using autocorrelation
-    max_hz = 3.75 #max_hz = max_bpm/60, max_bpm = 225
-    min_delay = 1/max_hz #minimum delay would be the inverse of the highest frequency possible
-    min_lags = math.floor(min_delay/sample_period)
-
-    max_delay = 1/limit_hz
-    max_lags = math.floor(max_delay/sample_period)
-    
+    # spectrum_filtered[:limit_sample] = 0    
     
     auto_corr = np.correlate(data, data, "full") #Calculates the autocorrelation
-    auto_corr_filtered = np.correlate(data_filtered, data_filtered, "full") #Calculates the autocorrelation
+    auto_corr_filtered = np.correlate(data_filtered, data_filtered, "full") #Calculates the autocorrelation of filtered data
     
     t_autocorr = np.linspace(start=-num_of_samples*sample_period, stop=num_of_samples*sample_period, num=2*num_of_samples-1)
 
