@@ -98,17 +98,17 @@ def calc_SNR_average(Ts, spectrum):
     SNR = 20*np.log10(np.abs(spectrum[sig_peak_index]/np.average(spectrum_sig_peak_removed)))
     return(SNR)
 
-def plot_all_results(plots, t, data, data_filtered, freq, spectrum, spectrum_filtered, t_autocorr, auto_corr, auto_corr_filtered, cs):
+def plot_all_results(t, data, data_filtered, freq, spectrum, spectrum_filtered, t_autocorr, auto_corr, auto_corr_filtered,):
     subplots.append(plots[-1].add_subplot(3, 1, 1))
-    subplots[-1].plot(t, data, "b", t, data_filtered, "r")
+    subplots[-1].plot(t, data, cs[i][0].lower(), t, data_filtered, cs_sec[i])
     subplots[-1].set_ylabel("Amplitude")
-    subplots[-1].set_xlabel("Frekvens [Hz]")
-    subplots[-1].set_title("Measurments from the " + cs[i] + " channel")
+    subplots[-1].set_xlabel("Tid[s]")
+    subplots[-1].set_title("Measurments from the " + cs[i].lower() + " channel")
     subplots[-1].legend(['Unfiltered', 'Filtered'])
 
 
     subplots.append(plots[-1].add_subplot(3, 1, 2))
-    subplots[-1].plot(freq, 20*np.log10(np.abs(spectrum)), "b", freq, 20*np.log10(np.abs(spectrum_filtered)), ".r")
+    subplots[-1].plot(freq, 20*np.log10(np.abs(spectrum)), cs[i][0].lower(), freq, 20*np.log10(np.abs(spectrum_filtered)), "."+cs_sec[i])
     subplots[-1].set_xscale("log")
     subplots[-1].set_ylabel("Amplitude")
     subplots[-1].set_xlabel("Puls [bpm]")
@@ -117,10 +117,19 @@ def plot_all_results(plots, t, data, data_filtered, freq, spectrum, spectrum_fil
 
 
     subplots.append(plots[-1].add_subplot(3, 1, 3))
-    subplots[-1].plot(t_autocorr, auto_corr, "b", t_autocorr, auto_corr_filtered, "r")
+    subplots[-1].plot(t_autocorr, auto_corr, cs[i][0].lower(), t_autocorr, auto_corr_filtered, cs_sec[i])
     subplots[-1].set_ylabel("Amplitude")
-    subplots[-1].set_xlabel("Autokorrelasjon [s]")
+    subplots[-1].set_xlabel("Tid[s]")
     subplots[-1].legend(['Unfiltered', 'Filtered'])
+
+def plot_raw_data(t, data):
+    subplots.append(plots[-1].add_subplot(1, 1, 1))
+    subplots[-1].plot(t, data, cs[i][0].lower())
+    subplots[-1].set_title("Raw data from " + cs[i].lower())
+    subplots[-1].set_ylabel("Amplitude")
+    subplots[-1].set_xlabel("Time[s]")
+    subplots[-1].grid()
+    return()
 
 def normalize(data, data_filtered, spectrum, spectrum_filtered, auto_corr, auto_corr_filtered):
     # Normalizes filtered results to have same amplitude as the original results
@@ -134,22 +143,25 @@ filter_parameteres = [71,4,4] #window_length, polyorder and derivorder
 plots = list()
 subplots = list()
 cs = ['Red', 'Green', 'Blue']
+cs_sec = ['c', 'm', 'k']
 sample_frequency = 40 # [Hz]
 sample_period = 1 / sample_frequency # [s]
+trim_amount = 100 #number of samples trimed
 
 for i in range(3):
     plots.append(plt.figure())
 
-    data = getData("Lab_4-Optics/Tests/Test29/result.txt", i)
+    data_raw = getData("Lab_4-Optics/Tests/Test29/result.txt", i)
 
     # Trims test
-    data = data[100:-100]
+    data = data_raw[trim_amount:-trim_amount]
 
     # Generate time axis
     num_of_samples = data.shape[0]  # returns shape of matrix
     data = signal.detrend(data)
     data_filtered = signal.savgol_filter(data, filter_parameteres[0], filter_parameteres[1], filter_parameteres[2], mode="constant")
-    t = np.linspace(start=0, stop=num_of_samples*sample_period, num=num_of_samples)
+    t_raw = np.linspace(start=0, stop=data_raw.shape[0]*sample_period, num=data_raw.shape[0])
+    t = np.linspace(start=trim_amount*sample_period, stop=(num_of_samples+trim_amount)*sample_period, num=num_of_samples)
 
 
     #Generate frequency axis and take FFT
@@ -164,8 +176,7 @@ for i in range(3):
     # spectrum[:limit_sample] = 0
 
     # spectrum_filtered[-limit_sample:] = 0
-    # spectrum_filtered[:limit_sample] = 0   
-
+    # spectrum_filtered[:limit_sample] = 0
 
    #Find pulse using autocorrelation
     max_hz = 3.75 #max_hz = max_bpm/60, max_bpm = 225
@@ -197,8 +208,11 @@ for i in range(3):
     data, data_filtered, spectrum, spectrum_filtered, auto_corr, auto_corr_filtered = normalize(data, data_filtered, spectrum, spectrum_filtered, auto_corr, auto_corr_filtered)
 
     #plot everything
-    plot_all_results(plots, t, data, data_filtered, freq, spectrum, spectrum_filtered, t_autocorr, auto_corr, auto_corr_filtered, cs)
+    plot_all_results(t, data, data_filtered, freq, spectrum, spectrum_filtered, t_autocorr, auto_corr, auto_corr_filtered)
+
+    #plot only raw data
+    #plot_raw_data(t_raw, data_raw)
 
 
-plt.show()
+#plt.show()
 pylab.show()
