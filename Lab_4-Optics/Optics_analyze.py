@@ -122,6 +122,13 @@ def plot_all_results(plots, t, data, data_filtered, freq, spectrum, spectrum_fil
     subplots[-1].set_xlabel("Autokorrelasjon [s]")
     subplots[-1].legend(['Unfiltered', 'Filtered'])
 
+def normalize(data, data_filtered, spectrum, spectrum_filtered, auto_corr, auto_corr_filtered):
+    # Normalizes filtered results to have same amplitude as the original results
+    data_filtered = data_filtered * (data[np.argmax(data)]-data[np.argmin(data)]) / (data_filtered[np.argmax(data_filtered)]-data_filtered[np.argmin(data_filtered)])
+    spectrum_filtered = spectrum_filtered * spectrum[np.argmax(np.abs(spectrum_filtered))] / spectrum_filtered[np.argmax(np.abs(spectrum_filtered))]
+    auto_corr_filtered = auto_corr_filtered*auto_corr[auto_corr.shape[0]//2]/auto_corr_filtered[auto_corr_filtered.shape[0]//2]
+    return(data, data_filtered, spectrum, spectrum_filtered, auto_corr, auto_corr_filtered)
+
 filter_parameteres = [71,4,4] #window_length, polyorder and derivorder
 
 plots = list()
@@ -185,12 +192,11 @@ for i in range(3):
     freq = np.fft.fftshift(freq) * 60
     spectrum = np.fft.fftshift(spectrum)
     spectrum_filtered = np.fft.fftshift(spectrum_filtered)
-    
-    # Normalize
-    data_filtered = data_filtered * (data[np.argmax(data)]-data[np.argmin(data)]) / (data_filtered[np.argmax(data_filtered)]-data_filtered[np.argmin(data_filtered)])
-    spectrum_filtered = spectrum_filtered * spectrum[np.argmax(np.abs(spectrum_filtered))] / spectrum_filtered[np.argmax(np.abs(spectrum_filtered))]
-    auto_corr_filtered = auto_corr_filtered*auto_corr[auto_corr.shape[0]//2]/auto_corr_filtered[auto_corr_filtered.shape[0]//2]
 
+    #normalize
+    data, data_filtered, spectrum, spectrum_filtered, auto_corr, auto_corr_filtered = normalize(data, data_filtered, spectrum, spectrum_filtered, auto_corr, auto_corr_filtered)
+
+    #plot everything
     plot_all_results(plots, t, data, data_filtered, freq, spectrum, spectrum_filtered, t_autocorr, auto_corr, auto_corr_filtered, cs)
 
 
