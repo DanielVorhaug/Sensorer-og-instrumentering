@@ -32,8 +32,12 @@ def interpolate(sample_period, data, factor):
     return new_data, new_sample_period
 
 # Import data from bin file
-sample_period, data_raw = raspi_import('adcData.bin')
-data = data_raw[4000:,:]
+
+try:
+    sample_period, data_raw = raspi_import('adcData.bin')
+except:
+    sample_period, data_raw = raspi_import('Lab_1-System\\adcData.bin')
+data = data_raw[5:,:]
 
 data = signal.detrend(data, axis=0)  # removes DC component for each channel
 sample_period *= 1e-6  # change unit to micro seconds
@@ -59,12 +63,21 @@ spectrum = np.fft.fftshift(spectrum)
 # NOTICE: This lazily plots the entire matrixes. All the channels will be put into the same plots.
 # If you want a single channel, use data[:,n] to get channel n
 
-for i in range(1,3):
-    plt.subplot(2, 1, i)
-    plt.title("Time domain signal")
-    plt.xlabel("Time [us]")
-    plt.ylabel("Voltage")
-    plt.plot(t[:], data[:,i-1], ".")    
+for i in range(1,6):
+    plt.subplot(3, 2, i)
+#     # plt.title("Time domain signal")
+#     plt.xlabel("Tid [s]")
+#     plt.ylabel("Spenning [mV]")
+#     plt.plot(t[:], data[:,i-1], "-")    
+    plt.xlabel("Frequency [Hz]")
+    plt.ylabel("Power [dB]")
+    plt.plot(freq, 20*np.log10(np.abs(spectrum[:,i-1]))) # get the power spectrum
+
+# plt.subplot(1, 1, 1)
+# plt.title("Time domain signal")
+# plt.xlabel("Time [us]")
+# plt.ylabel("Voltage")
+# plt.plot(t[:], data[:,0], ".", t[:], data[:,1], ".", t[:], data[:,2], ".", t[:], data[:,3], ".", t[:], data[:,4], ".")
 
 # for i in range(1,3):
 #    plt.subplot(2, 1, i)
@@ -84,7 +97,7 @@ for i in range(1,3):
 # #plt.title("Power spectrum of signal")
 # plt.xlabel("Frequency [Hz]")
 # plt.ylabel("Power [dB]")
-# plt.plot(freq, 20*np.log10(np.abs(spectrum))) # get the power spectrum
+# plt.plot(freq, 20*np.log10(np.abs(spectrum[:,0]))) # get the power spectrum
 
 
 
