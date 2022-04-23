@@ -98,16 +98,40 @@ def calc_SNR_average(Ts, spectrum):
     SNR = 20*np.log10(np.abs(spectrum[sig_peak_index]/np.average(spectrum_sig_peak_removed)))
     return(SNR)
 
+def plot_all_results(plots, t, data, data_filtered, freq, spectrum, spectrum_filtered, t_autocorr, auto_corr, auto_corr_filtered, cs):
+    subplots.append(plots[-1].add_subplot(3, 1, 1))
+    subplots[-1].plot(t, data, "b", t, data_filtered, "r")
+    subplots[-1].set_ylabel("Amplitude")
+    subplots[-1].set_xlabel("Frekvens [Hz]")
+    subplots[-1].set_title("Measurments from the " + cs[i] + " channel")
+    subplots[-1].legend(['Unfiltered', 'Filtered'])
+
+
+    subplots.append(plots[-1].add_subplot(3, 1, 2))
+    subplots[-1].plot(freq, 20*np.log10(np.abs(spectrum)), "b", freq, 20*np.log10(np.abs(spectrum_filtered)), ".r")
+    subplots[-1].set_xscale("log")
+    subplots[-1].set_ylabel("Amplitude")
+    subplots[-1].set_xlabel("Puls [bpm]")
+    subplots[-1].legend(['Unfiltered', 'Filtered'])
+    subplots[-1].grid()
+
+
+    subplots.append(plots[-1].add_subplot(3, 1, 3))
+    subplots[-1].plot(t_autocorr, auto_corr, "b", t_autocorr, auto_corr_filtered, "r")
+    subplots[-1].set_ylabel("Amplitude")
+    subplots[-1].set_xlabel("Autokorrelasjon [s]")
+    subplots[-1].legend(['Unfiltered', 'Filtered'])
+
 filter_parameteres = [71,4,4] #window_length, polyorder and derivorder
 
 plots = list()
 subplots = list()
 cs = ['Red', 'Green', 'Blue']
+sample_frequency = 40 # [Hz]
+sample_period = 1 / sample_frequency # [s]
 
 for i in range(3):
     plots.append(plt.figure())
-    sample_frequency = 40 # [Hz]
-    sample_period = 1 / sample_frequency # [s]
 
     data = getData("Lab_4-Optics/Tests/Test29/result.txt", i)
 
@@ -133,11 +157,7 @@ for i in range(3):
     # spectrum[:limit_sample] = 0
 
     # spectrum_filtered[-limit_sample:] = 0
-    # spectrum_filtered[:limit_sample] = 0
-
-    
-
-    
+    # spectrum_filtered[:limit_sample] = 0   
 
 
    #Find pulse using autocorrelation
@@ -171,29 +191,7 @@ for i in range(3):
     spectrum_filtered = spectrum_filtered * spectrum[np.argmax(np.abs(spectrum_filtered))] / spectrum_filtered[np.argmax(np.abs(spectrum_filtered))]
     auto_corr_filtered = auto_corr_filtered*auto_corr[auto_corr.shape[0]//2]/auto_corr_filtered[auto_corr_filtered.shape[0]//2]
 
-
-    subplots.append(plots[-1].add_subplot(3, 1, 1))
-    subplots[-1].plot(t, data, "b", t, data_filtered, "r")
-    subplots[-1].set_ylabel("Amplitude")
-    subplots[-1].set_xlabel("Frekvens [Hz]")
-    subplots[-1].set_title("Measurments from the " + cs[i] + " channel")
-    subplots[-1].legend(['Unfiltered', 'Filtered'])
-
-
-    subplots.append(plots[-1].add_subplot(3, 1, 2))
-    subplots[-1].plot(freq, 20*np.log10(np.abs(spectrum)), "b", freq, 20*np.log10(np.abs(spectrum_filtered)), ".r")
-    subplots[-1].set_xscale("log")
-    subplots[-1].set_ylabel("Amplitude")
-    subplots[-1].set_xlabel("Puls [bpm]")
-    subplots[-1].legend(['Unfiltered', 'Filtered'])
-    subplots[-1].grid()
-
-
-    subplots.append(plots[-1].add_subplot(3, 1, 3))
-    subplots[-1].plot(t_autocorr, auto_corr, "b", t_autocorr, auto_corr_filtered, "r")
-    subplots[-1].set_ylabel("Amplitude")
-    subplots[-1].set_xlabel("Autokorrelasjon [s]")
-    subplots[-1].legend(['Unfiltered', 'Filtered'])    
+    plot_all_results(plots, t, data, data_filtered, freq, spectrum, spectrum_filtered, t_autocorr, auto_corr, auto_corr_filtered, cs)
 
 
 plt.show()
