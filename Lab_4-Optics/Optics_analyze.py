@@ -58,7 +58,6 @@ def find_pulse(Ts,freq, spectrum):
     limit_sample = math.ceil(limit_hz * spectrum.shape[0] * Ts)
 
     peak = limit_sample + np.argmax(np.abs(spectrum[limit_sample:spectrum.shape[0]//2]))
-    #peak = np.argmax(np.abs(spectrum))
     fd = abs(freq[peak]) * 60 #find the pulse and convert from Hz to bpm
 
     return(fd)
@@ -160,54 +159,54 @@ sample_period = 1 / sample_frequency # [s]
 trim_amount = 100 #number of samples trimed
 
 for i in range(3):
-    plots.append(plt.figure())
-
     data_raw = getData("Lab_4-Optics/Tests/Test29/result.txt", i)
 
     # Trims test
     data = data_raw[trim_amount:-trim_amount]
+    num_of_samples = data.shape[0]
 
-    # Generate time axis
-    num_of_samples = data.shape[0]  # returns shape of matrix
+    #detrends and filters data
     data = signal.detrend(data)
     data_filtered = signal.savgol_filter(data, filter_parameteres[0], filter_parameteres[1], filter_parameteres[2], mode="constant")
-    t_raw = np.linspace(start=0, stop=data_raw.shape[0]*sample_period, num=data_raw.shape[0])
-    t = np.linspace(start=trim_amount*sample_period, stop=(num_of_samples+trim_amount)*sample_period, num=num_of_samples)
-
 
     #Generate frequency axis and take FFT
     freq = np.fft.fftfreq(n=num_of_samples, d=sample_period)
     spectrum = np.fft.fft(data, axis=0)  # takes FFT of all channels
-    spectrum_filtered = np.fft.fft(data_filtered, axis=0)  # takes FFT of all channels
-
-    # Filter low frequencies
-    limit_hz = 30/60
-    limit_sample = math.ceil(limit_hz * spectrum.shape[0] * sample_period)
-    # spectrum[-limit_sample:] = 0
-    # spectrum[:limit_sample] = 0
-
-    # spectrum_filtered[-limit_sample:] = 0
-    # spectrum_filtered[:limit_sample] = 0    
+    spectrum_filtered = np.fft.fft(data_filtered, axis=0)  # takes FFT of all channels 
     
     auto_corr = np.correlate(data, data, "full") #Calculates the autocorrelation
     auto_corr_filtered = np.correlate(data_filtered, data_filtered, "full") #Calculates the autocorrelation of filtered data
-    
-    t_autocorr = np.linspace(start=-num_of_samples*sample_period, stop=num_of_samples*sample_period, num=2*num_of_samples-1)
 
+    #Calculates bpm using autocorrelation and FFT
     bpm_from_autocorrelation = find_pulse_autocorrelation(auto_corr_filtered)
+    bpm_from_FFT = find_pulse(sample_period, freq, spectrum_filtered)
 
-    print(f"Channel {i}: \tpulse (FFT): {find_pulse(sample_period, freq, spectrum_filtered):.1f} \tpulse (autocorr): {(bpm_from_autocorrelation):.1f} \t\tSNR (average noise): {calc_SNR_average(sample_period, spectrum_filtered):.1f}dB\tSNR (peak noise): {calc_SNR_peaks(sample_period, spectrum_filtered):.1f}dB")
+    #Calculates SNR compared to average noise and peak noise
+    SNR_average = calc_SNR_average(sample_period, spectrum_filtered)
+    SNR_peak = calc_SNR_peaks(sample_period, spectrum_filtered)
+
+    print(f"Channel {i}: \tpulse (FFT): {(bpm_from_FFT):.1f} \tpulse (autocorr): {(bpm_from_autocorrelation):.1f} \t\tSNR (average noise): {(SNR_average):.1f}dB\tSNR (peak noise): {(SNR_peak):.1f}dB")
+
+    #Code for plotting starts here
+    plots.append(plt.figure())
 
     #Fixes frequency axis
     freq = np.fft.fftshift(freq) * 60
     spectrum = np.fft.fftshift(spectrum)
     spectrum_filtered = np.fft.fftshift(spectrum_filtered)
 
-    #normalize
+    #Calculate time axis for autocorrelation
+    t_autocorr = np.linspace(start=-num_of_samples*sample_period, stop=num_of_samples*sample_period, num=2*num_of_samples-1)
+
+    #Calculates time axis for data
+    t_raw = np.linspace(start=0, stop=data_raw.shape[0]*sample_period, num=data_raw.shape[0])
+    t = np.linspace(start=trim_amount*sample_period, stop=(num_of_samples+trim_amount)*sample_period, num=num_of_samples)
+
+    #normalizes filtered data
     data, data_filtered, spectrum, spectrum_filtered, auto_corr, auto_corr_filtered = normalize(data, data_filtered, spectrum, spectrum_filtered, auto_corr, auto_corr_filtered)
 
     #plot everything
-    #plot_all_results(t, data, data_filtered, freq, spectrum, spectrum_filtered, t_autocorr, auto_corr, auto_corr_filtered)
+    plot_all_results(t, data, data_filtered, freq, spectrum, spectrum_filtered, t_autocorr, auto_corr, auto_corr_filtered)
 
     #plot only raw data
     #plot_raw_data(t_raw, data_raw)
