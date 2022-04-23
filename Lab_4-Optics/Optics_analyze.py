@@ -37,24 +37,12 @@ def plot_resolutions(Ts):
 
     return()
 
-def find_pulse_autocorrelation(Ts, filepath): #Finds the pulse using autocorrelation (duh)
-    pulse = []
-    #max_bpm = 300
-    max_hz = 5 #max_hz = max_bpm/60
-    min_delay = 1/max_hz
-    min_lags = math.floor(min_delay/Ts)
-
-    for i in range(3): #Goes through and does it for all colors
-        color_values = getData(filepath, i) #Gets data for the color
-        color_values = signal.detrend(color_values)
-
-        auto_corr = np.correlate(color_values, color_values, "full") #Calculates the autocorrelation
-        auto_corr = auto_corr[auto_corr.shape[0]//2 + min_lags + 1:] #Removes negative delays and delays that would result in a too high frequency
-        lags = np.argmax(auto_corr) + min_lags#Gives the delay as a number of lags from previous center (which is lag = 0)
-        time_delay = Ts*lags
-        pulse.append(60/time_delay) #60 * freq[hz] = freq[bpm]
-
-    return(pulse)
+def find_pulse_autocorrelation(auto_corr_filtered): #Finds the pulse using autocorrelation (duh)
+    auto_corr_trimmed = auto_corr_filtered[auto_corr_filtered.shape[0]//2 + min_lags + 1:auto_corr_filtered.shape[0]//2 + max_lags + 1] #Removes negative delays and delays that would result in a too high frequency
+    lags = np.argmax(auto_corr_trimmed) + min_lags + 1#Gives the delay as a number of lags from previous center (which is lag = 0)
+    time_delay = sample_period*lags
+    bpm = 60/time_delay #60 as we want bpm and not Hz
+    return(bpm)
 
 def find_pulse(Ts,freq, spectrum):
     limit_hz = 40/60 #40 bpm omregnet til hz
@@ -206,10 +194,7 @@ for i in range(3):
     
     t_autocorr = np.linspace(start=-num_of_samples*sample_period, stop=num_of_samples*sample_period, num=2*num_of_samples-1)
 
-    auto_corr_trimmed = auto_corr_filtered[auto_corr_filtered.shape[0]//2 + min_lags + 1:auto_corr_filtered.shape[0]//2 + max_lags + 1] #Removes negative delays and delays that would result in a too high frequency
-    lags = np.argmax(auto_corr_trimmed) + min_lags + 1#Gives the delay as a number of lags from previous center (which is lag = 0)
-    time_delay = sample_period*lags
-    bpm_from_autocorrelation = 60/time_delay
+    bpm_from_autocorrelation = find_pulse_autocorrelation(auto_corr_filtered)
 
     print(f"Channel {i}: \tpulse (FFT): {find_pulse(sample_period, freq, spectrum_filtered):.1f} \tpulse (autocorr): {(bpm_from_autocorrelation):.1f} \t\tSNR (average noise): {calc_SNR_average(sample_period, spectrum_filtered):.1f}dB\tSNR (peak noise): {calc_SNR_peaks(sample_period, spectrum_filtered):.1f}dB")
 
@@ -222,10 +207,13 @@ for i in range(3):
     data, data_filtered, spectrum, spectrum_filtered, auto_corr, auto_corr_filtered = normalize(data, data_filtered, spectrum, spectrum_filtered, auto_corr, auto_corr_filtered)
 
     #plot everything
-    plot_all_results(t, data, data_filtered, freq, spectrum, spectrum_filtered, t_autocorr, auto_corr, auto_corr_filtered)
+    #plot_all_results(t, data, data_filtered, freq, spectrum, spectrum_filtered, t_autocorr, auto_corr, auto_corr_filtered)
 
     #plot only raw data
     #plot_raw_data(t_raw, data_raw)
+
+    #plot FFT and autocorrelation of trimmed, unfiltered data
+    #plot_raw_FFT_and_auto(freq, spectrum, t_autocorr, auto_corr)
 
 
 #plt.show()
