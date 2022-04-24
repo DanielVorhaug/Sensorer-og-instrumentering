@@ -93,21 +93,25 @@ SNRs_peak = [[], [], []]
 starting_index = 35
 ending_index = 40
 
-reference_bpm = 60
+all_tests = np.array([["06", "07", "08", "09", "10", "11", "12", "0"], ["16", "17", "18", "19", "20", "21", "22", "23"], ["25", "26", "27", "28", "29", "30", "0", "0"], ["35", "36", "37", "38", "39", "40", "0", "0"]])
 
-reference_array = np.full( ending_index-starting_index+1, reference_bpm)
+#0 = transmittans optimal, 1 = reflektans optimal, 2 = lyst rom, 3 = kalde fingere
 
+reference_array = np.array([[60, 60, 60, 60, 59, 59, 59, 0], [65, 65, 65, 65, 64, 64, 64, 64], [67, 67, 67, 67, 64, 64, 0, 0], [62, 62, 62, 63, 63, 63, 0, 0]]) #Array hvor vi har skrevet inn pulsmålinger vi gjorde med separat pulsmåler. Vi målte omtrent hver fjerde måling og skrev nyeste måling som resultat på hver test fram til ny måling.
 
+# for j in range(ending_index - starting_index + 1):
+#     for i in range(3):
+#         index_string = str(j+starting_index)
+#         if len(index_string) == 1:
+#             index_string= "0" + index_string
 
-
-for j in range(ending_index - starting_index + 1):
+wanted=3
+for index_string in all_tests[wanted]:
     for i in range(3):
+        if (index_string == "0"):
+            break
         sample_frequency = 40 # [Hz]
         sample_period = 1 / sample_frequency # [s]
-        
-        index_string = str(j+starting_index)
-        if len(index_string) == 1:
-            index_string= "0" + index_string
 
         data = getData("Lab_4-Optics/Tests/Test" + index_string + "/result.txt", i)
 
@@ -117,7 +121,7 @@ for j in range(ending_index - starting_index + 1):
         # Generate time axis
         num_of_samples = data.shape[0]  # returns shape of matrix
         data = signal.detrend(data)
-        data_filtered = signal.savgol_filter(data, filter_parameteres[0], filter_parameteres[1], filter_parameteres[2], mode="constant")
+        data_filtered = signal.savgol_filter(data, filter_parameteres[0], filter_parameteres[1], filter_parameteres[2], mode="constant") #This is where we decide wether to filter our data
         t = np.linspace(start=0, stop=num_of_samples*sample_period, num=num_of_samples)
 
 
@@ -160,8 +164,8 @@ for j in range(ending_index - starting_index + 1):
     
 
 for i in range(3):
-    print(f"Pulse (FFT): \t\tChannel {color[i]}: \tAverage: {np.average(pulses_fft[i]):.2f}bpm,\tStd: {np.std(pulses_fft[i]):.2f}bpm \tStd from reference: {np.sqrt(np.mean(np.abs(pulses_fft[i] - reference_array)**2.)):.2f}bpm")
-    print(f"Pulse (autocorr): \tChannel {color[i]}: \tAverage: {np.average(pulses_autocorr[i]):.2f}bpm,\tStd: {np.std(pulses_autocorr[i]):.2f}bpm \tStd from reference: {np.sqrt(np.mean(np.abs(pulses_autocorr[i] - reference_array)**2.)):.2f}bpm")
+    print(f"Pulse (FFT): \t\tChannel {color[i]}: \tAverage: {np.average(pulses_fft[i]):.2f}bpm,\tStd: {np.std(pulses_fft[i]):.2f}bpm \tStd from reference: {np.sqrt(np.mean(np.abs(pulses_fft[i] - reference_array[wanted][0: len(pulses_autocorr[i])])**2.)):.2f}bpm")
+    print(f"Pulse (autocorr): \tChannel {color[i]}: \tAverage: {np.average(pulses_autocorr[i]):.2f}bpm,\tStd: {np.std(pulses_autocorr[i]):.2f}bpm \tStd from reference: {np.sqrt(np.mean(np.abs(pulses_autocorr[i] - reference_array[wanted][0: len(pulses_autocorr[i])])**2.)):.2f}bpm")
     print()
 print()
     
