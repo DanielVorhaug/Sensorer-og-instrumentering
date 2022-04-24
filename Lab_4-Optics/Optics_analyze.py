@@ -100,16 +100,16 @@ def plot_all_results(t, data, data_filtered, freq, spectrum, spectrum_filtered, 
     subplots[-1].set_ylabel("Amplitude")
     subplots[-1].set_xlabel("Tid[s]")
     subplots[-1].set_title("Measurments from the " + cs[i].lower() + " channel")
-    subplots[-1].legend(['Unfiltered', 'Filtered'])
+    subplots[-1].legend(['Unfiltered', 'Filtered'], loc='lower right')
     subplots[-1].grid()
 
 
     subplots.append(plots[-1].add_subplot(3, 1, 2))
     subplots[-1].plot(freq, 20*np.log10(np.abs(spectrum)), cs[i][0].lower(), freq, 20*np.log10(np.abs(spectrum_filtered)), "."+cs_sec[i])
     subplots[-1].set_xscale("log")
-    subplots[-1].set_ylabel("Amplitude")
+    subplots[-1].set_ylabel("Power")
     subplots[-1].set_xlabel("Puls [bpm]")
-    subplots[-1].legend(['Unfiltered', 'Filtered'])
+    subplots[-1].legend(['Unfiltered', 'Filtered'], loc='lower right')
     subplots[-1].grid()
 
 
@@ -117,7 +117,7 @@ def plot_all_results(t, data, data_filtered, freq, spectrum, spectrum_filtered, 
     subplots[-1].plot(t_autocorr, auto_corr, cs[i][0].lower(), t_autocorr, auto_corr_filtered, cs_sec[i])
     subplots[-1].set_ylabel("Amplitude")
     subplots[-1].set_xlabel("Tid[s]")
-    subplots[-1].legend(['Unfiltered', 'Filtered'])
+    subplots[-1].legend(['Unfiltered', 'Filtered'], loc='lower right')
     subplots[-1].grid()
 
 def plot_raw_data(t, data):
@@ -131,7 +131,7 @@ def plot_raw_FFT_and_auto(freq, spectrum, t_autocorr, auto_corr):
     subplots.append(plots[-1].add_subplot(2, 1, 1))
     subplots[-1].plot(freq, 20*np.log10(np.abs(spectrum)), cs[i].lower())
     subplots[-1].set_xscale("log")
-    subplots[-1].set_ylabel("Amplitude")
+    subplots[-1].set_ylabel("Power")
     subplots[-1].set_xlabel("Puls[bpm]")
     subplots[-1].grid()
 
@@ -206,13 +206,13 @@ for i in range(3):
     data, data_filtered, spectrum, spectrum_filtered, auto_corr, auto_corr_filtered = normalize(data, data_filtered, spectrum, spectrum_filtered, auto_corr, auto_corr_filtered)
 
     #plot everything
-    plot_all_results(t, data, data_filtered, freq, spectrum, spectrum_filtered, t_autocorr, auto_corr, auto_corr_filtered)
+    # plot_all_results(t, data, data_filtered, freq, spectrum, spectrum_filtered, t_autocorr, auto_corr, auto_corr_filtered)
 
     #plot only raw data
-    #plot_raw_data(t_raw, data_raw)
+    # plot_raw_data(t_raw, data_raw)
 
     #plot FFT and autocorrelation of trimmed, unfiltered data
-    #plot_raw_FFT_and_auto(freq, spectrum, t_autocorr, auto_corr)
+    plot_raw_FFT_and_auto(freq, spectrum, t_autocorr, auto_corr)
 
 
 #plt.show()
